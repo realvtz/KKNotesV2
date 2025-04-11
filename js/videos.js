@@ -108,6 +108,14 @@ function loadVideos(semester, subject = null, showLoader = false) {
                                 // Determine content type (video, playlist, channel)
                                 if (url.includes('youtube.com/playlist') || url.includes('list=')) {
                                     videos[key].contentType = 'playlist';
+                                    console.log(`Detected playlist: ${url}`);
+                                    
+                                    // Extract the playlist ID for debugging
+                                    const playlistMatch = url.match(/[?&]list=([a-zA-Z0-9_-]+)/);
+                                    if (playlistMatch && playlistMatch[1]) {
+                                        videos[key].playlistId = playlistMatch[1];
+                                        console.log(`Extracted playlist ID: ${videos[key].playlistId}`);
+                                    }
                                 } else if (url.includes('youtube.com/channel/') || url.includes('youtube.com/c/') || url.includes('youtube.com/user/')) {
                                     videos[key].contentType = 'channel';
                                 } else {
@@ -139,6 +147,19 @@ function loadVideos(semester, subject = null, showLoader = false) {
                                                 videos[key].youtubeId = videoIdMatch[1];
                                             }
                                         }
+                                    }
+                                }
+                                
+                                // ADDED: Detect playlists and extract playlist IDs
+                                if (url.includes('playlist') || url.includes('list=')) {
+                                    console.log('Detected playlist URL:', url);
+                                    videos[key].contentType = 'playlist';
+                                    
+                                    // Extract playlist ID
+                                    const playlistMatch = url.match(/[?&]list=([a-zA-Z0-9_-]+)/);
+                                    if (playlistMatch && playlistMatch[1]) {
+                                        videos[key].playlistId = playlistMatch[1];
+                                        console.log('Extracted playlist ID:', videos[key].playlistId);
                                     }
                                 }
                                 
@@ -349,6 +370,9 @@ function createVideoCard(video) {
     const card = document.createElement('div');
     card.className = 'video-card';
     
+    // DEBUGGING: Log the original video object to see what we're working with
+    console.log('Creating video card for:', JSON.stringify(video));
+    
     // IMPORTANT FIX: Support both 'url' and 'link' fields
     // Copy the link field to url field if url is missing but link exists
     if (!video.url && video.link) {
@@ -356,10 +380,23 @@ function createVideoCard(video) {
         console.log('Fixed: Copied link field to url field:', video.link);
     }
     
+    // DIRECT PLAYLIST HANDLING: Extract playlist ID if this is a playlist
+    let playlistId = null;
+    if (video.url && video.url.includes('playlist?list=')) {
+        const match = video.url.match(/[?&]list=([a-zA-Z0-9_-]+)/);
+        if (match && match[1]) {
+            playlistId = match[1];
+            video.playlistId = playlistId;
+            video.contentType = 'playlist';
+            console.log('Detected playlist ID directly:', playlistId);
+        }
+    }
+    
     // For debugging - add data-* attributes with the video details
     if (video.url) card.dataset.url = video.url;
     if (video.link) card.dataset.link = video.link;
     if (video.youtubeId) card.dataset.youtubeId = video.youtubeId;
+    if (playlistId || video.playlistId) card.dataset.playlistId = playlistId || video.playlistId;
     
     // Set content type if not already set
     const contentType = video.contentType || 'video';
@@ -384,7 +421,7 @@ function createVideoCard(video) {
     let videoId = video.youtubeId || '';
     
     // Handle URL similar to notes.js to fix localhost redirects
-    let youtubeUrl = video.url || '';
+    let youtubeUrl = video.url || video.link || '';
     let hasURLIssue = false;
     
     // If URL isn't set, default to a safe value
@@ -392,6 +429,12 @@ function createVideoCard(video) {
         console.warn('Video is missing URL:', video);
         youtubeUrl = '#'; // Fallback to prevent broken links
         hasURLIssue = true;
+    }
+    
+    // IMPORTANT: For playlists, directly use the playlist URL format for maximum compatibility
+    if (contentType === 'playlist' && video.playlistId) {
+        youtubeUrl = `https://www.youtube.com/playlist?list=${video.playlistId}`;
+        console.log('Using direct playlist URL format:', youtubeUrl);
     }
     
     // Special fix for relative URLs (the main cause of localhost issues)
@@ -534,9 +577,9 @@ function createVideoCard(video) {
                 ${video.creator ? `<span class="video-creator" style="font-size: 14px !important; color: #6b7280 !important; display: flex !important; align-items: center !important;"><i class="fas fa-user" style="margin-right: 5px !important;"></i> ${video.creator}</span>` : ''}
             </div>
             <div class="video-actions" style="display: flex !important; flex-direction: column !important; gap: 10px !important; margin-top: auto !important;">
-                <button id="yt-button-${videoId || Math.random().toString(36).substr(2, 9)}" class="youtube-button" style="width: 100% !important; padding: 12px 18px !important; font-weight: 600 !important; font-size: 16px !important; border-radius: 50px !important; background-color: rgba(255, 0, 0, 0.1) !important; color: #FF0000 !important; text-align: center !important; display: flex !important; justify-content: center !important; align-items: center !important; text-decoration: none !important; border: none !important; cursor: pointer !important;">
+                <a href="${youtubeUrl}" target="_blank" rel="noopener noreferrer" class="youtube-button" style="width: 100% !important; padding: 12px 18px !important; font-weight: 600 !important; font-size: 16px !important; border-radius: 50px !important; background-color: rgba(255, 0, 0, 0.1) !important; color: #FF0000 !important; text-align: center !important; display: flex !important; justify-content: center !important; align-items: center !important; text-decoration: none !important; border: none !important; cursor: pointer !important;">
                     <i class="fab fa-youtube" style="margin-right: 8px !important;"></i> ${watchButtonLabel}
-                </button>
+                </a>
                 ${hasURLIssue ? `
                 <div class="manual-url-section" style="margin-top: 5px; text-align: center;">
                     <div style="margin-bottom: 8px; font-size: 13px; color: #6b7280;">
@@ -555,13 +598,15 @@ function createVideoCard(video) {
                         <div>URL: ${youtubeUrl || 'Not available'}</div>
                         <div>Video ID: ${videoId || 'Not available'}</div>
                         <div>Original URL: ${video.url || 'Not set'}</div>
+                        <div>Playlist ID: ${video.playlistId || 'Not available'}</div>
+                        <div>Original Link: ${video.link || 'Not set'}</div>
                     </div>
                 </div>
             </div>
         </div>
     `;
     
-    // Add click handler to toggle debug info
+    // Add helpful debug info
     const debugToggle = card.querySelector('.debug-toggle');
     const debugDetails = card.querySelector('.debug-details');
     
@@ -573,69 +618,13 @@ function createVideoCard(video) {
         });
     }
     
-    // Add custom handler for YouTube button to bypass any framework interference
-    const ytButtonId = `yt-button-${videoId || Math.random().toString(36).substr(2, 9)}`;
-    const ytButton = card.querySelector(`#${ytButtonId}`);
-    if (ytButton && youtubeUrl && youtubeUrl !== '#') {
-        ytButton.addEventListener('click', function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            console.log('YouTube button clicked, opening URL:', youtubeUrl, 'Content type:', contentType);
-            
-            // First fix common URL issues
-            let finalUrl = youtubeUrl;
-            
-            // SPECIAL FIX: Direct handler for youtu.be links
-            if (youtubeUrl.includes('youtu.be/')) {
-                const videoIdMatch = youtubeUrl.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
-                if (videoIdMatch && videoIdMatch[1]) {
-                    const directYoutubeId = videoIdMatch[1].split('?')[0];
-                    console.log('Processing youtu.be video:', directYoutubeId);
-                    finalUrl = `https://www.youtube.com/watch?v=${directYoutubeId}`;
-                }
-            }
-            
-            // Special handling for playlists
-            if (contentType === 'playlist') {
-                // Extract playlist ID if possible
-                const playlistMatch = youtubeUrl.match(/[?&]list=([a-zA-Z0-9_-]+)/);
-                if (playlistMatch && playlistMatch[1]) {
-                    finalUrl = `https://www.youtube.com/playlist?list=${playlistMatch[1]}`;
-                    console.log('Opening playlist:', finalUrl);
-                }
-            }
-            
-            // Special handling for channels
-            if (contentType === 'channel') {
-                // Ensure it's a proper channel URL
-                if (youtubeUrl.includes('/channel/') || youtubeUrl.includes('/c/') || youtubeUrl.includes('/user/')) {
-                    finalUrl = youtubeUrl;
-                    console.log('Opening channel:', finalUrl);
-                }
-            }
-            
-            // Open the URL
-            try {
-                console.log('Opening final URL:', finalUrl);
-                window.open(finalUrl, '_blank');
-            } catch (error) {
-                console.error('Error opening URL:', error);
-                // Fallback to direct navigation
-                window.location.href = finalUrl;
-            }
-            
-            return false; // Prevent default and stop propagation
-        });
-    }
-    
-    // Add click handler to YouTube preview for extra reliability
+    // Add click handler to YouTube preview for direct linking
     const previewElement = card.querySelector('.video-preview');
     if (previewElement && youtubeUrl && youtubeUrl !== '#') {
+        previewElement.style.cursor = 'pointer';
         previewElement.addEventListener('click', (event) => {
             event.preventDefault();
-            console.log('Opening YouTube from preview:', youtubeUrl);
-            // Trigger the same action as the button
-            ytButton.click();
+            window.open(youtubeUrl, '_blank');
         });
     }
     
