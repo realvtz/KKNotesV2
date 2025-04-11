@@ -225,7 +225,11 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log(`Admin badge updated: ${badge.textContent}`);
         }
 
-        // Add other admin-specific UI updates here (e.g., showing an admin dashboard link)
+        // Show admin link for both regular admins and super admins
+        const adminLink = document.querySelector('.admin-link');
+        if (adminLink) {
+            adminLink.classList.remove('hidden');
+        }
     }
 
 

@@ -310,10 +310,24 @@ function generateUserActions(uid, user) {
 }
 
 function generateAdminActions(uid, admin) {
-    if (admin.superAdmin || !window.authState.isSuperAdmin()) {
+    // Don't allow actions on superadmins
+    if (admin.superAdmin) {
         return '';
     }
     
+    // For regular admins, show buttons but restrict some functionality
+    if (!window.authState.isSuperAdmin()) {
+        return `
+            <button class="btn outline-btn" onclick="promoteToSuperAdmin('${uid}')" disabled title="Only Super Admins can promote to Super Admin">
+                <i class="fas fa-crown"></i> Make Super Admin
+            </button>
+            <button class="btn outline-btn text-danger" onclick="demoteAdmin('${uid}')" disabled title="Only Super Admins can remove Admins">
+                <i class="fas fa-user-minus"></i> Remove Admin
+            </button>
+        `;
+    }
+    
+    // For super admins, show fully functional buttons
     return `
         <button class="btn outline-btn" onclick="promoteToSuperAdmin('${uid}')">
             <i class="fas fa-crown"></i> Make Super Admin
