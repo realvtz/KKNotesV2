@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KKNotes - KTU Computer Science Notes</title>
+    
+    <!-- CSS Styles -->
+    <link rel="stylesheet" href="css/newstyle.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+    
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <!-- Site Auth Overlay -->
+    <div id="auth-overlay" class="auth-overlay">
+        <div class="auth-card">
+            <div class="auth-header">
+                <img src="assets/logo.svg" alt="KKNotes Logo" class="logo">
+                <h1>KKNotes</h1>
+            </div>
+            <h2>Welcome to KKNotes! <span class="emoji">👋</span></h2>
+            <p>Please sign in with your Google account to access notes, videos, and chat with other students.</p>
+            
+            <div class="auth-message-container">
+                <div class="form-message" id="auth-message"></div>
+            </div>
+            
+            <button id="site-auth-btn" class="google-btn">
+                <i class="fab fa-google"></i> Sign in with Google
+            </button>
+            
+            <div class="auth-footer">
+                <p>Made with <span class="emoji">❤️</span> by Christopher Joshy</p>
+            </div>
+        </div>
+    </div>
+    
+    <header>
+        <nav>
+            <div class="logo-container">
+                <img src="assets/logo.svg" alt="KKNotes Logo" class="logo">
+                <h1>KKNotes</h1>
+            </div>
+            <div class="nav-links">
+                <a href="#home" class="active">Home</a>
+                <a href="#notes">Notes</a>
+                <a href="#videos">Videos</a>
+                <a href="#chat">Chat</a>
+                <a href="#about">About</a>
+                <a href="admin.html" class="admin-link">
+                    <i class="fas fa-lock"></i> Admin
+                </a>
+            </div>
+            <div class="nav-actions">
+                <div id="user-profile" class="user-profile hidden">
+                    <img src="assets/avatars/default-avatar.png" alt="User" id="user-avatar">
+                    <div class="user-dropdown">
+                        <div id="user-info" class="user-info">
+                            <span id="user-name">User Name</span>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <button id="logout-btn" class="dropdown-item">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                </div>
+                <button id="login-btn" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+                <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <div class="hero-content">
+                <h1>Welcome to KKNotes <span class="emoji">📚</span></h1>
+                <p>Your premium resource hub for KTU Computer Science Engineering study materials, featuring high-quality notes and curated video tutorials.</p>
+                <a href="#notes" class="btn primary-btn">
+                    Explore Notes <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            <div class="hero-image">
+                <div class="floating-emoji">🧠</div>
+                <div class="floating-emoji">💻</div>
+                <div class="floating-emoji">📝</div>
+                <div class="floating-emoji">🎓</div>
+            </div>
+        </section>
+
+        <section id="notes" class="notes-section">
+            <h2>Semester Notes <span class="emoji">📖</span></h2>
+            <p class="section-desc">
+                Access your semester-wise study materials with just one click!
+            </p>
+            
+            <div class="semester-tabs">
+                <button class="sem-tab active" data-sem="s1">S1</button>
+                <button class="sem-tab" data-sem="s2">S2</button>
+                <button class="sem-tab" data-sem="s3">S3</button>
+                <button class="sem-tab" data-sem="s4">S4</button>
+                <button class="sem-tab" data-sem="s5">S5</button>
+                <button class="sem-tab" data-sem="s6">S6</button>
+                <button class="sem-tab" data-sem="s7">S7</button>
+                <button class="sem-tab" data-sem="s8">S8</button>
+            </div>
+            
+            <div id="notes-container" class="notes-container">
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading notes...</p>
+                </div>
+            </div>
+        </section>
+        
+        <section id="videos" class="videos-section">
+            <h2>Video Tutorials <span class="emoji">🎬</span></h2>
+            <p class="section-desc">
+                Watch helpful video tutorials carefully selected for each subject
+            </p>
+            
+            <div class="semester-tabs">
+                <button class="sem-tab active" data-sem="s1">S1</button>
+                <button class="sem-tab" data-sem="s2">S2</button>
+                <button class="sem-tab" data-sem="s3">S3</button>
+                <button class="sem-tab" data-sem="s4">S4</button>
+                <button class="sem-tab" data-sem="s5">S5</button>
+                <button class="sem-tab" data-sem="s6">S6</button>
+                <button class="sem-tab" data-sem="s7">S7</button>
+                <button class="sem-tab" data-sem="s8">S8</button>
+            </div>
+            
+            <div id="videos-container" class="videos-container">
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading videos...</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="chat" class="chat-section">
+            <h2>Global Chat <span class="emoji">💬</span></h2>
+            <p class="section-desc">
+                Connect with other students, share resources, and get help with your courses
+            </p>
+            
+            <div class="chat-container">
+                <div id="chat-messages" class="chat-messages">
+                    <div class="loading-spinner">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Loading chat...</p>
+                    </div>
+                </div>
+                
+                <form id="chat-form" class="chat-form">
+                    <div id="chat-user-info" class="chat-user-info"></div>
+                    <div class="chat-input-container">
+                        <input type="text" id="chat-input" placeholder="Type your message..." autocomplete="off">
+                        <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </form>
+                
+                <div class="auth-required-message" id="chat-auth-required">
+                    <i class="fas fa-lock"></i>
+                    <p>Sign in to participate in the chat</p>
+                </div>
+            </div>
+        </section>
+        
+        <section id="about" class="about-section">
+            <h2>About the Creator <span class="emoji">👨‍💻</span></h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <h3>Christopher Joshy</h3>
+                    <p class="subtitle">Computer Science Engineering Student</p>
+                    <p class="about-desc">
+                        Passionate about technology and sharing knowledge with fellow CS students.
+                        KKNotes is my contribution to help KTU students access quality study materials easily and collaborate with other students.
+                    </p>
+                    <div class="social-links">
+                        <a href="https://github.com/ChristopherJoshy" target="_blank" class="social-link">
+                            <i class="fab fa-github"></i> GitHub
+                        </a>
+                        <a href="https://www.instagram.com/calculatederror/" target="_blank" class="social-link">
+                            <i class="fab fa-instagram"></i> Instagram
+                        </a>
+                    </div>
+                </div>
+                <div class="about-image">
+                    <div class="profile-emoji">👨‍💻</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="assets/logo.svg" alt="KKNotes Logo" class="logo">
+                <h3>KKNotes</h3>
+            </div>
+            <div class="footer-links">
+                <a href="#home">Home</a>
+                <a href="#notes">Notes</a>
+                <a href="#videos">Videos</a>
+                <a href="#chat">Chat</a>
+                <a href="#about">About</a>
+            </div>
+            <div class="footer-social">
+                <a href="https://github.com/ChristopherJoshy" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://www.instagram.com/calculatederror/" target="_blank"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 KKNotes. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-database-compat.js"></script>
+    <script src="js/env-config.js"></script>
+    <script src="js/firebase-config.js"></script>
+    
+    <!-- Custom Scripts -->
+    <script src="js/theme.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/notes.js"></script>
+    <script src="js/videos.js"></script>
+    <script src="js/chat.js"></script>
+    
+    <!-- Force styles for cards -->
+    <style>
+        .notes-grid, .videos-grid {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)) !important;
+            gap: 40px !important;
+            margin: 30px auto !important;
+            width: 100% !important;
+            max-width: 1400px !important;
+        }
+        
+        .note-card, .video-card {
+            min-height: 450px !important;
+            width: 100% !important;
+            max-width: 400px !important;
+            margin: 0 auto !important;
+            border-radius: 20px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            overflow: hidden !important;
+            background-color: white !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+            border: 1px solid rgba(99, 102, 241, 0.15) !important;
+            position: relative !important;
+        }
+        
+        @media (max-width: 768px) {
+            .notes-grid, .videos-grid {
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)) !important;
+                gap: 30px !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .notes-grid, .videos-grid {
+                grid-template-columns: 1fr !important;
+                gap: 25px !important;
+            }
+        }
+    </style>
+</body>
+</html>

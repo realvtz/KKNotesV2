@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KKNotes Admin Panel</title>
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Admin Sidebar -->
+        <div class="admin-sidebar">
+            <h2>Admin Panel</h2>
+            <nav>
+                <button class="nav-btn active" data-panel="content-panel">
+                    <i class="fas fa-file-alt"></i> Content Management
+                </button>
+                <button class="nav-btn" data-panel="admin-panel">
+                    <i class="fas fa-users-cog"></i> Admin Management
+                </button>
+                <button class="nav-btn" data-panel="sem-subject-panel">
+                    <i class="fas fa-list"></i> Semesters & Subjects
+                </button>
+            </nav>
+        </div>
+
+        <!-- Admin Content -->
+        <div class="admin-content">
+            <!-- Content Management Panel -->
+            <div id="content-panel" class="panel active">
+                <div class="panel-header">
+                    <h3>Content Management</h3>
+                    <div class="content-type-selector">
+                        <button class="type-btn active" data-type="note">Notes</button>
+                        <button class="type-btn" data-type="video">Videos</button>
+                    </div>
+                </div>
+
+                <!-- Add Content Card -->
+                <div class="content-card">
+                    <h4>Add New Content</h4>
+                    <form id="addContentForm">
+                        <div class="form-group">
+                            <label for="contentType">Content Type</label>
+                            <select id="contentType" required>
+                                <option value="note">Note</option>
+                                <option value="video">Video</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="semester">Semester</label>
+                            <select id="semester" required>
+                                <option value="">Select Semester</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subject">Subject</label>
+                            <select id="subject" required>
+                                <option value="">Select Subject</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="title">Title</label>
+                            <input type="text" id="title" placeholder="e.g., Data Structures Notes" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea id="description" rows="3" placeholder="Brief description about the content"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="driveLink">Google Drive Link</label>
+                            <input type="url" id="driveLink" placeholder="https://drive.google.com/..." required>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn primary-btn">
+                                <i class="fas fa-plus"></i> Add Content
+                            </button>
+                            <button type="button" class="btn outline-btn" onclick="resetForm('content')">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Content List -->
+                <div class="content-list" id="contentList">
+                    <!-- Content items will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Admin Management Panel -->
+            <div id="admin-panel" class="panel">
+                <div class="panel-header">
+                    <h3>Admin Management</h3>
+                </div>
+
+                <!-- Add Admin Card -->
+                <div class="content-card">
+                    <h4>Add New Admin</h4>
+                    <form id="addAdminForm">
+                        <div class="form-group">
+                            <label for="adminEmail">Email</label>
+                            <input type="email" id="adminEmail" placeholder="admin@example.com" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="adminNickname">Nickname</label>
+                            <input type="text" id="adminNickname" placeholder="Display name" required>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn primary-btn">
+                                <i class="fas fa-user-plus"></i> Add Admin
+                            </button>
+                            <button type="button" class="btn outline-btn" onclick="resetForm('admin')">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Admin List -->
+                <div class="admin-list" id="adminList">
+                    <!-- Admin items will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Semesters & Subjects Panel -->
+            <div id="sem-subject-panel" class="panel">
+                <div class="panel-header">
+                    <h3>Semesters & Subjects</h3>
+                    <div class="content-type-selector">
+                        <button class="type-btn active" data-type="semester">Semesters</button>
+                        <button class="type-btn" data-type="subject">Subjects</button>
+                    </div>
+                </div>
+
+                <!-- Add Semester/Subject Card -->
+                <div class="content-card">
+                    <h4 id="semSubFormTitle">Add New Semester</h4>
+                    <form id="addSemSubForm">
+                        <div class="form-group semester-group">
+                            <label for="semesterName">Semester Name</label>
+                            <input type="text" id="semesterName" placeholder="e.g., Semester 1" required>
+                        </div>
+
+                        <div class="form-group semester-group">
+                            <label for="semesterKey">Semester Key</label>
+                            <input type="text" id="semesterKey" placeholder="e.g., s1" required>
+                        </div>
+
+                        <div class="form-group subject-group" style="display: none;">
+                            <label for="subjectSemester">Semester</label>
+                            <select id="subjectSemester" required>
+                                <option value="">Select Semester</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group subject-group" style="display: none;">
+                            <label for="subjectName">Subject Name</label>
+                            <input type="text" id="subjectName" placeholder="e.g., Data Structures" required>
+                        </div>
+
+                        <div class="form-group subject-group" style="display: none;">
+                            <label for="subjectKey">Subject Key</label>
+                            <select id="subjectKey" required>
+                                <option value="">Enter Subject Key</option>
+                            </select>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn primary-btn">
+                                <i class="fas fa-plus"></i> <span id="semSubBtnText">Add Semester</span>
+                            </button>
+                            <button type="button" class="btn outline-btn" onclick="resetForm('semsub')">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Semester/Subject List -->
+                <div class="sem-subject-list" id="semSubList">
+                    <!-- Items will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-database-compat.js"></script>
+    <script src="js/env-config.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
