@@ -2,8 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KKNotes Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=1.0">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="format-detection" content="telephone=no">
+    <title>KKNotes Admin - Manage Content</title>
     <link rel="stylesheet" href="css/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
@@ -11,7 +15,10 @@
     <div class="admin-container">
         <!-- Admin Sidebar -->
         <div class="admin-sidebar">
-            <h2>Admin Panel</h2>
+            <h2><img src="assets/logo.svg" alt="KKNotes Logo" class="logo"> Admin</h2>
+            <button class="menu-toggle" aria-label="Toggle admin menu">
+                <i class="fas fa-bars"></i>
+            </button>
             <nav>
                 <button class="nav-btn active" data-panel="content-panel">
                     <i class="fas fa-file-alt"></i> Content Management

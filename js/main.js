@@ -7,11 +7,15 @@
 let mainThemeToggle = document.getElementById('theme-toggle');
 const menuToggle = document.querySelector('.menu-toggle');
 const navLinks = document.querySelector('.nav-links');
+let isMobile = window.innerWidth <= 768;
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', initializeApp);
 if (mainThemeToggle) mainThemeToggle.addEventListener('click', toggleTheme);
 if (menuToggle) menuToggle.addEventListener('click', toggleMenu);
+
+// Add resize listener to detect mobile/desktop changes
+window.addEventListener('resize', handleResize);
 
 /**
  * Initialize the application
@@ -81,6 +85,159 @@ function initializeApp() {
             }
         });
     }
+    
+    // Initialize mobile-specific behavior
+    if (isMobile) {
+        initMobileBehavior();
+    }
+    
+    // Check for system dark mode preference
+    checkSystemDarkModePreference();
+}
+
+/**
+ * Check system preference for dark mode and apply if needed
+ */
+function checkSystemDarkModePreference() {
+    const savedPreference = localStorage.getItem('darkMode');
+    
+    // If user has a saved preference, use that
+    if (savedPreference !== null) {
+        if (savedPreference === 'true') {
+            document.body.classList.add('dark-mode');
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+        return;
+    }
+    
+    // Otherwise check system preference
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark-mode');
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('darkMode', 'true');
+    }
+}
+
+/**
+ * Handle window resize events to adapt to different screen sizes
+ */
+function handleResize() {
+    const wasItMobile = isMobile;
+    isMobile = window.innerWidth <= 768;
+    
+    // Only run if mobile state has changed
+    if (wasItMobile !== isMobile) {
+        if (isMobile) {
+            initMobileBehavior();
+        } else {
+            resetMobileBehavior();
+        }
+    }
+}
+
+/**
+ * Initialize mobile-specific behavior
+ */
+function initMobileBehavior() {
+    console.log('Initializing mobile behavior');
+    
+    // Add swipe detection for mobile navigation
+    const body = document.body;
+    
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    body.addEventListener('touchstart', function(e) {
+        touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+    
+    body.addEventListener('touchend', function(e) {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    }, { passive: true });
+    
+    function handleSwipe() {
+        const swipeThreshold = 100; // minimum distance for swipe
+        
+        // Right to left swipe (open menu)
+        if (touchEndX < touchStartX - swipeThreshold) {
+            if (navLinks && !navLinks.classList.contains('active')) {
+                navLinks.classList.add('active');
+            }
+        }
+        
+        // Left to right swipe (close menu)
+        if (touchEndX > touchStartX + swipeThreshold) {
+            if (navLinks && navLinks.classList.contains('active')) {
+                navLinks.classList.remove('active');
+            }
+        }
+    }
+    
+    // Make semester tabs and subject lists scrollable with touch
+    const scrollableElements = document.querySelectorAll('.semester-tabs, .subjects-list');
+    scrollableElements.forEach(element => {
+        // Add visual indication for scrollable areas
+        element.classList.add('mobile-scrollable');
+        
+        // Add scroll indicators if not already present
+        if (!element.querySelector('.scroll-indicator')) {
+            const leftIndicator = document.createElement('div');
+            leftIndicator.className = 'scroll-indicator left hidden';
+            leftIndicator.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            
+            const rightIndicator = document.createElement('div');
+            rightIndicator.className = 'scroll-indicator right';
+            rightIndicator.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            
+            element.appendChild(leftIndicator);
+            element.appendChild(rightIndicator);
+            
+            // Handle scroll indicators visibility
+            element.addEventListener('scroll', updateScrollIndicators);
+            
+            // Initial indicator state
+            updateScrollIndicators.call(element);
+        }
+    });
+    
+    function updateScrollIndicators() {
+        const leftIndicator = this.querySelector('.scroll-indicator.left');
+        const rightIndicator = this.querySelector('.scroll-indicator.right');
+        
+        if (leftIndicator && rightIndicator) {
+            // Show/hide left indicator based on scroll position
+            if (this.scrollLeft > 20) {
+                leftIndicator.classList.remove('hidden');
+            } else {
+                leftIndicator.classList.add('hidden');
+            }
+            
+            // Show/hide right indicator based on whether there's more content to scroll
+            if (this.scrollLeft + this.clientWidth >= this.scrollWidth - 20) {
+                rightIndicator.classList.add('hidden');
+            } else {
+                rightIndicator.classList.remove('hidden');
+            }
+        }
+    }
+}
+
+/**
+ * Reset mobile behavior when switching to desktop
+ */
+function resetMobileBehavior() {
+    console.log('Resetting mobile behavior');
+    
+    // Remove mobile-specific classes
+    const mobileElements = document.querySelectorAll('.mobile-scrollable');
+    mobileElements.forEach(element => {
+        element.classList.remove('mobile-scrollable');
+        
+        // Remove scroll indicators
+        const indicators = element.querySelectorAll('.scroll-indicator');
+        indicators.forEach(indicator => indicator.remove());
+    });
 }
 
 /**
@@ -166,6 +323,19 @@ function initializeAnimations() {
  */
 function toggleTheme() {
     document.body.classList.toggle('dark-mode');
+    
+    // Toggle data-theme attribute for CSS variables
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    
+    // Add animation to theme toggle button
+    if (mainThemeToggle) {
+        mainThemeToggle.classList.add('rotate');
+        setTimeout(() => {
+            mainThemeToggle.classList.remove('rotate');
+        }, 500);
+    }
     
     // Save preference to localStorage
     const isDarkMode = document.body.classList.contains('dark-mode');

@@ -16,6 +16,11 @@ const semesterSelect = document.getElementById('semester');
 const subjectSelect = document.getElementById('subject');
 const contentTypeSelect = document.getElementById('contentType');
 const subjectSemesterSelect = document.getElementById('subjectSemester');
+const adminSidebar = document.querySelector('.admin-sidebar');
+const menuToggle = document.querySelector('.menu-toggle');
+
+// Responsive state
+let isMobile = window.innerWidth <= 768;
 
 // Firebase Database References
 const db = firebase.database();
@@ -44,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const isAdmin = await checkAdminStatus(user.email);
             if (isAdmin) {
                 initializeAdmin();
+                initMobileAdminBehavior();
             } else {
                 // Redirect non-admins
                 window.location.href = 'index.html';
@@ -54,7 +60,134 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = 'index.html';
         }
     });
+    
+    // Add resize event listener
+    window.addEventListener('resize', handleResize);
 });
+
+/**
+ * Handle window resize events
+ */
+function handleResize() {
+    const wasItMobile = isMobile;
+    isMobile = window.innerWidth <= 768;
+    
+    // Only run if mobile state has changed
+    if (wasItMobile !== isMobile) {
+        if (isMobile) {
+            initMobileAdminBehavior();
+        } else {
+            resetMobileAdminBehavior();
+        }
+    }
+}
+
+/**
+ * Initialize mobile-specific behavior for admin panel
+ */
+function initMobileAdminBehavior() {
+    console.log('Initializing mobile admin behavior');
+    
+    // Add mobile class to admin container
+    const adminContainer = document.querySelector('.admin-container');
+    if (adminContainer) {
+        adminContainer.classList.add('mobile-view');
+    }
+    
+    // Setup menu toggle
+    if (menuToggle && adminSidebar) {
+        menuToggle.addEventListener('click', toggleAdminMenu);
+    }
+    
+    // Add touch swipe detection for admin sidebar
+    if (adminContainer) {
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        adminContainer.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        
+        adminContainer.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            handleAdminSwipe();
+        }, { passive: true });
+        
+        function handleAdminSwipe() {
+            const swipeThreshold = 100; // minimum distance for swipe
+            
+            // Right to left swipe (close sidebar)
+            if (touchEndX < touchStartX - swipeThreshold) {
+                if (adminSidebar && adminSidebar.classList.contains('active')) {
+                    adminSidebar.classList.remove('active');
+                    document.body.classList.remove('sidebar-open');
+                }
+            }
+            
+            // Left to right swipe (open sidebar)
+            if (touchEndX > touchStartX + swipeThreshold) {
+                if (adminSidebar && !adminSidebar.classList.contains('active')) {
+                    adminSidebar.classList.add('active');
+                    document.body.classList.add('sidebar-open');
+                }
+            }
+        }
+    }
+    
+    // Make nav buttons close sidebar when clicked on mobile
+    navButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (isMobile && adminSidebar) {
+                adminSidebar.classList.remove('active');
+                document.body.classList.remove('sidebar-open');
+            }
+        });
+    });
+    
+    // Add scroll indicators to scrollable lists
+    const scrollableLists = document.querySelectorAll('.content-list, .admin-list, .sem-subject-list');
+    scrollableLists.forEach(list => {
+        if (list.scrollWidth > list.clientWidth) {
+            list.classList.add('scrollable');
+        }
+    });
+}
+
+/**
+ * Reset mobile behavior when switching to desktop
+ */
+function resetMobileAdminBehavior() {
+    console.log('Resetting mobile admin behavior');
+    
+    // Remove mobile classes
+    const adminContainer = document.querySelector('.admin-container');
+    if (adminContainer) {
+        adminContainer.classList.remove('mobile-view');
+    }
+    
+    // Reset sidebar state
+    if (adminSidebar) {
+        adminSidebar.classList.remove('active');
+    }
+    
+    document.body.classList.remove('sidebar-open');
+    
+    // Remove scrollable classes
+    const scrollableLists = document.querySelectorAll('.scrollable');
+    scrollableLists.forEach(list => {
+        list.classList.remove('scrollable');
+    });
+}
+
+/**
+ * Toggle the admin sidebar menu
+ */
+function toggleAdminMenu() {
+    if (adminSidebar) {
+        adminSidebar.classList.toggle('active');
+        document.body.classList.toggle('sidebar-open');
+    }
+}
 
 /**
  * Check if user has admin privileges

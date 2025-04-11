@@ -832,6 +832,19 @@
     --font-size-md: 1rem;
     --font-size-lg: 1.25rem;
     --primary-color-rgb: 79, 109, 245;
+    /* Mobile spacing adjustments */
+    --spacing-mobile-xs: 0.2rem;
+    --spacing-mobile-sm: 0.35rem;
+    --spacing-mobile-md: 0.75rem;
+    --spacing-mobile-lg: 1rem;
+    --spacing-mobile-xl: 1.5rem;
+    
+    /* Mobile typography adjustments */
+    --font-size-mobile-xs: 0.7rem;
+    --font-size-mobile-sm: 0.8rem;
+    --font-size-mobile-md: 0.9rem;
+    --font-size-mobile-lg: 1.1rem;
+    --font-size-mobile-xl: 1.3rem;
 }
 
 body {
@@ -1334,6 +1347,588 @@ body {
         width: 100%;
     }
 
+    .content-list, .admin-list, .sem-subject-list {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Comprehensive Media Queries for Admin Panel */
+
+/* Large Tablets and Small Desktops */
+@media (max-width: 1200px) {
+    .admin-section {
+        max-width: 95%;
+        padding: 0 1rem;
+    }
+    
+    .admin-card {
+        padding: 1.5rem;
+    }
+    
+    .dashboard-content {
+        flex-direction: row;
+        gap: 1.5rem;
+    }
+    
+    .dashboard-sidebar {
+        width: 250px;
+    }
+    
+    .dashboard-main {
+        flex: 1;
+    }
+}
+
+/* Tablets */
+@media (max-width: 992px) {
+    .admin-card h2 {
+        font-size: 1.75rem;
+    }
+    
+    .dashboard-content {
+        flex-direction: column;
+    }
+    
+    .dashboard-sidebar {
+        width: 100%;
+        margin-bottom: 1.5rem;
+    }
+    
+    .semester-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .semester-item {
+        flex: 0 0 auto;
+        width: auto;
+    }
+    
+    .admin-container {
+        flex-direction: column;
+    }
+    
+    .admin-sidebar {
+        width: 100%;
+        margin-bottom: 1.5rem;
+    }
+    
+    .admin-content {
+        width: 100%;
+    }
+    
+    .nav-btn {
+        flex-direction: row;
+        justify-content: flex-start;
+        padding: 0.75rem 1rem;
+    }
+    
+    .nav-btn i {
+        margin-right: 0.5rem;
+        margin-bottom: 0;
+    }
+}
+
+/* Small Tablets */
+@media (max-width: 768px) {
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .dashboard-user-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .dashboard-content {
+        flex-direction: column;
+    }
+    
+    .dashboard-sidebar {
+        width: 100%;
+        margin-bottom: 1.5rem;
+    }
+    
+    .semester-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .semester-item {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+    }
+    
+    .admin-note-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .note-actions {
+        margin-top: 0.75rem;
+        width: 100%;
+        justify-content: flex-start;
+    }
+    
+    .tab-header {
+        flex-wrap: wrap;
+    }
+    
+    .tab-btn {
+        flex: 1 0 auto;
+        min-width: 100px;
+    }
+    
+    .form-group label {
+        font-size: 0.9rem;
+    }
+    
+    .toast-notification {
+        width: 90%;
+        left: 5%;
+        bottom: 20px;
+    }
+    
+    .admin-container {
+        flex-direction: column;
+    }
+    
+    .admin-sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .admin-content {
+        width: 100%;
+        padding: 0;
+    }
+    
+    .panel-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .content-type-selector {
+        width: 100%;
+    }
+    
+    .content-list, .admin-list, .sem-subject-list {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal {
+        width: 90%;
+    }
+    
+    .modal-content {
+        padding: 1rem;
+    }
+}
+
+/* Mobile Phones */
+@media (max-width: 576px) {
+    .admin-section {
+        margin: 1rem auto;
+    }
+    
+    .admin-card {
+        padding: 1.25rem;
+        border-radius: 0.75rem;
+    }
+    
+    .admin-card h2 {
+        font-size: 1.5rem;
+    }
+    
+    .dashboard-header {
+        padding: 1rem;
+    }
+    
+    .dashboard-title {
+        font-size: 1.4rem;
+    }
+    
+    .semester-item {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.85rem;
+    }
+    
+    .add-note-section {
+        padding: 1rem;
+    }
+    
+    .admin-note-item {
+        padding: 0.75rem;
+    }
+    
+    .note-title {
+        font-size: 1rem;
+    }
+    
+    .action-btn {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.85rem;
+    }
+    
+    .form-group {
+        margin-bottom: 0.75rem;
+    }
+    
+    .form-group input, 
+    .form-group select, 
+    .form-group textarea {
+        padding: 0.6rem;
+        font-size: 0.9rem;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .form-actions .btn {
+        width: 100%;
+    }
+    
+    .modal-header h2 {
+        font-size: 1.25rem;
+    }
+    
+    .content-card {
+        padding: 1rem;
+    }
+    
+    .content-item, .admin-item, .semsub-item {
+        padding: 0.75rem;
+    }
+    
+    .item-header h3 {
+        font-size: 1rem;
+    }
+    
+    .btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Very Small Mobile Phones */
+@media (max-width: 375px) {
+    .admin-card h2 {
+        font-size: 1.35rem;
+    }
+    
+    .admin-form {
+        padding: 0;
+    }
+    
+    .dashboard-title {
+        font-size: 1.25rem;
+    }
+    
+    .user-name {
+        font-size: 0.9rem;
+    }
+    
+    .user-email {
+        font-size: 0.8rem;
+    }
+    
+    .user-role {
+        font-size: 0.7rem;
+    }
+    
+    .semester-item {
+        padding: 0.35rem 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    .note-title {
+        font-size: 0.9rem;
+    }
+    
+    .action-btn {
+        padding: 0.35rem 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    .tab-btn {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* Mobile Admin Sidebar */
+.admin-sidebar .menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 1.5rem;
+    cursor: pointer;
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+
+.admin-sidebar .menu-toggle:active {
+    background-color: rgba(0, 0, 0, 0.05);
+    transform: scale(0.95);
+}
+
+/* Mobile behaviors */
+body.sidebar-open {
+    overflow: hidden;
+}
+
+body.sidebar-open::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 5;
+    backdrop-filter: blur(2px);
+}
+
+.mobile-view .admin-content {
+    transition: transform 0.3s ease;
+}
+
+.scrollable {
+    position: relative;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    padding: 0.5rem 0;
+}
+
+/* Enhance styling for admin cards and items */
+.content-item, .admin-item, .semsub-item {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.content-item:hover, .admin-item:hover, .semsub-item:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+.item-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.icon-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}
+
+.primary-btn {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: 0 2px 6px rgba(var(--primary-color-rgb), 0.3);
+}
+
+.primary-btn:hover {
+    background: var(--primary-dark);
+    box-shadow: 0 4px 8px rgba(var(--primary-color-rgb), 0.4);
+}
+
+/* Touch-friendly form inputs for mobile */
+@media (max-width: 768px) {
+    .admin-sidebar .menu-toggle {
+        display: flex;
+    }
+    
+    .admin-sidebar {
+        position: fixed;
+        left: -280px;
+        top: 0;
+        height: 100vh;
+        width: 260px;
+        z-index: 10;
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0);
+    }
+    
+    .admin-sidebar.active {
+        left: 0;
+        box-shadow: 0 0 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .admin-content {
+        width: 100%;
+        margin-left: 0;
+        padding: 1rem;
+    }
+    
+    .nav-btn, .type-btn, .btn, 
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        min-height: 44px;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-group label {
+        margin-bottom: 0.5rem;
+        display: block;
+        font-weight: 500;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        font-size: 16px; /* Prevents iOS zoom */
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
+    }
+    
+    .item-actions {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .item-actions .btn {
+        flex: 1 0 auto;
+    }
+    
+    /* Active touch feedback */
+    .nav-btn:active,
+    .type-btn:active,
+    .btn:active,
+    .content-item:active,
+    .admin-item:active,
+    .semsub-item:active {
+        transform: scale(0.98);
+        transition: transform 0.1s;
+    }
+    
+    /* Make modal more mobile-friendly */
+    .modal {
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+        border-radius: 16px;
+    }
+    
+    .modal-content {
+        border-radius: 16px;
+    }
+    
+    .modal-header {
+        border-radius: 16px 16px 0 0;
+    }
+    
+    /* Enhance toast notifications */
+    .toast {
+        border-radius: 12px;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Admin panel nav enhancements */
+    .nav-btn {
+        border-radius: 10px;
+        margin-bottom: 8px;
+        transition: all 0.2s ease;
+    }
+    
+    .nav-btn.active {
+        background-color: rgba(var(--primary-color-rgb), 0.1);
+        color: var(--primary-color);
+    }
+    
+    .type-btn {
+        border-radius: 8px;
+        padding: 8px 16px;
+    }
+    
+    /* List styles enhancement */
+    .content-list, .admin-list, .sem-subject-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 16px;
+        padding: 8px 0;
+    }
+    
+    /* Panel styling */
+    .panel {
+        padding: 16px;
+        border-radius: 12px;
+        background-color: var(--bg-color);
+    }
+}
+
+/* Small mobile phones */
+@media (max-width: 375px) {
+    .admin-sidebar {
+        width: 230px;
+    }
+    
+    .admin-sidebar h2 {
+        font-size: 1.2rem;
+        padding: 16px 12px;
+    }
+    
+    .nav-btn {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+    
+    .panel-header {
+        padding: 12px 10px;
+        border-radius: 8px;
+    }
+    
+    .panel-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .content-card h4 {
+        font-size: 1rem;
+    }
+    
     .content-list, .admin-list, .sem-subject-list {
         grid-template-columns: 1fr;
     }

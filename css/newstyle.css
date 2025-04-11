@@ -1,4 +1,5 @@
 /* ===== Modern Fluid Design for PC Only ===== */
+/* ===== Modern Fluid Design with Responsive Web Design ===== */
 :root {
     /* Color Palette - Light Mode (Default) */
     --primary-color: #6366f1;
@@ -91,6 +92,18 @@
     --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* Add responsive font sizes that scale better */
+    --font-size-hero-mobile: 2rem;
+    --font-size-xxl-mobile: 1.75rem;
+    --font-size-xl-mobile: 1.25rem;
+
+    /* Adjust spacing for smaller screens */
+    --spacing-mobile-xs: 0.2rem;
+    --spacing-mobile-sm: 0.35rem;
+    --spacing-mobile-md: 0.75rem;
+    --spacing-mobile-lg: 1rem;
+    --spacing-mobile-xl: 1.5rem;
 }
 
 /* Dark Mode Colors */
@@ -157,6 +170,7 @@
 html {
     scroll-behavior: smooth;
     height: 100%;
+    -webkit-text-size-adjust: 100%; /* Prevent font scaling in landscape */
 }
 
 body {
@@ -168,6 +182,8 @@ body {
     position: relative;
     overflow-x: hidden;
     transition: background-color var(--transition-normal), color var(--transition-normal);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 body::before {
@@ -2027,7 +2043,7 @@ section h2::after {
 }
 
 .slide-in {
-    animation: slideIn 0.3s ease forwards;
+    animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 .slide-out {
@@ -2035,7 +2051,7 @@ section h2::after {
 }
 
 .pop-in {
-    animation: popIn 0.4s ease forwards;
+    animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 .pulse-animation {
@@ -2386,24 +2402,820 @@ section h2::after {
 
 /* Notes and Videos Grid Layouts */
 .notes-grid, .videos-grid {
-    display: grid !important;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)) !important;
-    gap: 40px !important;
-    margin: 30px auto !important;
-    width: 100% !important;
-    max-width: 1400px !important;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+    width: 100%;
 }
 
+/* Comprehensive Media Queries for Responsive Design */
+
+/* Large Tablets and Small Desktops */
+@media (max-width: 1200px) {
+    .hero {
+        flex-direction: row;
+        gap: var(--spacing-xl);
+    }
+    
+    .hero-content {
+        flex: 1;
+    }
+    
+    .hero-image {
+        flex: 1;
+    }
+    
+    .notes-grid, .videos-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: var(--spacing-md);
+    }
+}
+
+/* Tablets */
+@media (max-width: 992px) {
+    html {
+        font-size: 95%;
+    }
+    
+    .nav-links {
+        gap: var(--spacing-sm);
+    }
+    
+    .nav-links a {
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+    
+    .hero-content h1 {
+        font-size: var(--font-size-xxl);
+    }
+    
+    section {
+        padding: var(--spacing-xl) var(--spacing-lg);
+    }
+    
+    .note-card, .video-card {
+        padding: var(--spacing-md);
+    }
+    
+    .login-card, .auth-card {
+        width: 90%;
+        max-width: 450px;
+    }
+}
+
+/* Small Tablets */
 @media (max-width: 768px) {
+    html {
+        font-size: 90%;
+    }
+    
+    header {
+        padding: var(--spacing-md);
+    }
+    
+    nav {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-md);
+    }
+    
+    .logo-container {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .nav-links {
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: var(--spacing-sm);
+        margin-bottom: var(--spacing-xs);
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .nav-links::-webkit-scrollbar {
+        height: 3px;
+    }
+    
+    .nav-links::-webkit-scrollbar-thumb {
+        background-color: var(--primary-light);
+        border-radius: var(--border-radius-pill);
+    }
+    
+    .nav-links a {
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+    
+    .nav-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+    
+    .hero {
+        flex-direction: column;
+        text-align: center;
+        padding: var(--spacing-xl) var(--spacing-md);
+    }
+    
+    .hero-content {
+        width: 100%;
+    }
+    
+    .hero-image {
+        width: 100%;
+        height: 200px;
+    }
+    
+    .hero-content h1 {
+        font-size: var(--font-size-hero-mobile);
+    }
+    
     .notes-grid, .videos-grid {
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)) !important;
-        gap: 30px !important;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: var(--spacing-md);
+    }
+    
+    .semester-tabs {
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: var(--spacing-sm);
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .semester-tabs::-webkit-scrollbar {
+        height: 3px;
+    }
+    
+    .semester-tabs::-webkit-scrollbar-thumb {
+        background-color: var(--primary-light);
+        border-radius: var(--border-radius-pill);
+    }
+    
+    .sem-tab {
+        padding: var(--spacing-xs) var(--spacing-sm);
+        font-size: var(--font-size-sm);
+    }
+    
+    .subjects-list {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: var(--spacing-sm);
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .subjects-list::-webkit-scrollbar {
+        height: 3px;
+    }
+    
+    .subjects-list::-webkit-scrollbar-thumb {
+        background-color: var(--primary-light);
+        border-radius: var(--border-radius-pill);
+    }
+    
+    .subject-btn {
+        flex: 0 0 auto;
+    }
+    
+    .chat-container {
+        height: 400px;
     }
 }
 
-@media (max-width: 480px) {
-    .notes-grid, .videos-grid {
-        grid-template-columns: 1fr !important;
-        gap: 25px !important;
+/* Mobile Phones */
+@media (max-width: 576px) {
+    html {
+        font-size: 85%;
     }
+    
+    header {
+        padding: var(--spacing-sm);
+    }
+    
+    .logo-container h1 {
+        font-size: var(--font-size-lg);
+    }
+    
+    .logo {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .nav-links a {
+        font-size: var(--font-size-sm);
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+    
+    .theme-toggle, .login-btn {
+        padding: var(--spacing-xs);
+        font-size: var(--font-size-sm);
+    }
+    
+    .hero-content h1 {
+        font-size: var(--font-size-xxl-mobile);
+    }
+    
+    .hero-content p {
+        font-size: var(--font-size-md);
+    }
+    
+    .btn {
+        padding: var(--spacing-sm) var(--spacing-md);
+        font-size: var(--font-size-sm);
+    }
+    
+    section {
+        padding: var(--spacing-lg) var(--spacing-sm);
+    }
+    
+    section h2 {
+        font-size: var(--font-size-xl-mobile);
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .section-desc {
+        margin-bottom: var(--spacing-lg);
+        font-size: var(--font-size-sm);
+    }
+    
+    .notes-grid, .videos-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+    
+    .note-card, .video-card {
+        padding: var(--spacing-sm);
+    }
+    
+    .note-title, .video-title {
+        font-size: var(--font-size-md);
+    }
+    
+    .chat-container {
+        height: 350px;
+    }
+    
+    .chat-messages {
+        padding: var(--spacing-sm);
+    }
+    
+    .chat-message {
+        padding: var(--spacing-sm);
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .chat-form {
+        padding: var(--spacing-sm);
+    }
+    
+    .auth-card, .login-card {
+        width: 95%;
+        padding: var(--spacing-lg) var(--spacing-md);
+    }
+    
+    .auth-header h1, .login-header h1 {
+        font-size: var(--font-size-xl);
+    }
+    
+    .back-button {
+        padding: var(--spacing-xs) var(--spacing-sm);
+        font-size: var(--font-size-sm);
+    }
+}
+
+/* Small Mobile Phones */
+@media (max-width: 375px) {
+    html {
+        font-size: 80%;
+    }
+    
+    .nav-links {
+        gap: var(--spacing-xs);
+    }
+    
+    .nav-links a {
+        padding: var(--spacing-xs) var(--spacing-xs);
+        font-size: var(--font-size-xs);
+    }
+    
+    .logo-container h1 {
+        font-size: var(--font-size-md);
+    }
+    
+    .logo {
+        width: 25px;
+        height: 25px;
+    }
+    
+    .hero-content h1 {
+        font-size: var(--font-size-xl);
+    }
+    
+    .hero-content p {
+        font-size: var(--font-size-sm);
+    }
+    
+    .chat-container {
+        height: 300px;
+    }
+}
+
+/* Handle mobile navigation behavior */
+@media (max-width: 768px) {
+    /* Make sure back button is visible when needed */
+    .back-button.hidden {
+        display: none;
+    }
+    
+    .back-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: var(--spacing-md);
+    }
+    
+    /* Fix user dropdown on mobile */
+    .user-dropdown {
+        position: absolute;
+        right: 0;
+        top: 100%;
+        width: 220px;
+    }
+}
+
+/* Mobile Scrollable Elements */
+.mobile-scrollable {
+    position: relative;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 var(--spacing-md);
+    margin: 0 calc(-1 * var(--spacing-md));
+}
+
+/* Scroll Indicators */
+.scroll-indicator {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: var(--border-radius-circle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0.9;
+    transition: all var(--transition-fast);
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(var(--primary-color-rgb), 0.4);
+}
+
+.scroll-indicator.left {
+    left: 8px;
+}
+
+.scroll-indicator.right {
+    right: 8px;
+}
+
+.scroll-indicator:hover {
+    opacity: 1;
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: 0 4px 12px rgba(var(--primary-color-rgb), 0.5);
+}
+
+.scroll-indicator:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+/* Menu Toggle Button */
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: var(--font-size-lg);
+    color: var(--text-color);
+    cursor: pointer;
+    padding: var(--spacing-xs);
+    transition: transform 0.2s ease;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--border-radius-circle);
+}
+
+.menu-toggle:active {
+    transform: scale(0.9);
+    background-color: rgba(var(--primary-color-rgb), 0.1);
+}
+
+/* Mobile Navigation Styles */
+@media (max-width: 768px) {
+    .menu-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        right: var(--spacing-md);
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 100;
+    }
+    
+    .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        height: 100vh;
+        width: 75%;
+        max-width: 320px;
+        background-color: var(--bg-light);
+        flex-direction: column;
+        padding: var(--spacing-xxl) var(--spacing-lg);
+        align-items: flex-start;
+        transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: -5px 0 30px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        overflow-y: auto;
+    }
+    
+    .nav-links.active {
+        right: 0;
+    }
+    
+    .nav-links a {
+        padding: var(--spacing-md) var(--spacing-sm);
+        width: 100%;
+        border-bottom: 1px solid var(--border-color);
+        font-size: var(--font-size-md);
+        font-weight: 500;
+    }
+    
+    .nav-links a:last-child {
+        border-bottom: none;
+    }
+    
+    body::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 990;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+        pointer-events: none;
+        backdrop-filter: blur(2px);
+    }
+    
+    body.menu-open::after {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+    
+    header {
+        position: sticky;
+        top: 0;
+        background-color: var(--bg-color);
+        z-index: 100;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+}
+
+/* Touch-friendly adjustments */
+@media (max-width: 576px) {
+    /* Make buttons and interactive elements larger for touch */
+    .btn, 
+    .sem-tab,
+    .subject-btn,
+    .note-actions a,
+    .video-actions a {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--spacing-sm) var(--spacing-md);
+        border-radius: var(--border-radius-md);
+    }
+    
+    /* Add active state for touch feedback */
+    .btn:active,
+    .sem-tab:active,
+    .subject-btn:active,
+    .note-card:active,
+    .video-card:active {
+        transform: scale(0.97);
+        transition: transform 0.1s;
+    }
+    
+    /* Adjust spacing for touch targets */
+    .note-actions, .video-actions {
+        gap: var(--spacing-md);
+    }
+    
+    /* Ensure form inputs are touch-friendly */
+    input, textarea, select, button {
+        min-height: 44px;
+        font-size: 16px; /* Prevents iOS zoom on focus */
+        border-radius: var(--border-radius-md);
+    }
+    
+    /* Enhance tap targets */
+    .nav-links a,
+    .footer-links a,
+    .social-links a,
+    .footer-social a {
+        padding: var(--spacing-sm) var(--spacing-md);
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    /* Improve form element touch targets */
+    .chat-form button,
+    .google-btn {
+        min-height: 46px;
+        min-width: 46px;
+    }
+    
+    /* Make auth card buttons more touch-friendly */
+    .auth-card .google-btn {
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Improve card appearance */
+    .note-card, .video-card {
+        border-radius: var(--border-radius-lg);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .note-card:active, .video-card:active {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Make semester tabs more touch-friendly */
+    .sem-tab {
+        border-radius: var(--border-radius-pill);
+        margin: 0 var(--spacing-xs);
+        padding: var(--spacing-sm) var(--spacing-md);
+        font-weight: 500;
+    }
+}
+
+/* Improved Note/Video Grid Layout */
+.notes-grid, .videos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+    width: 100%;
+    padding: var(--spacing-md) 0;
+}
+
+/* Improved Mobile Note and Video Cards */
+@media (max-width: 576px) {
+    .note-card, .video-card {
+        padding: var(--spacing-md);
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .note-preview, .video-preview {
+        height: 160px;
+        border-radius: var(--border-radius-md);
+        overflow: hidden;
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .note-thumbnail, .video-thumbnail {
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .note-card:active .note-thumbnail, 
+    .video-card:active .video-thumbnail {
+        transform: scale(1.05);
+    }
+    
+    .note-title, .video-title {
+        font-size: 1.1rem;
+        margin-bottom: var(--spacing-xs);
+        font-weight: 600;
+    }
+    
+    .note-description, .video-description {
+        font-size: 0.9rem;
+        margin-bottom: var(--spacing-sm);
+        color: var(--text-light);
+    }
+    
+    /* Fix for semester tabs scrolling */
+    .semester-tabs {
+        justify-content: flex-start;
+        padding: var(--spacing-sm) 0;
+        mask-image: linear-gradient(to right, black 80%, transparent 100%);
+        -webkit-mask-image: linear-gradient(to right, black 80%, transparent 100%);
+    }
+    
+    /* Fix for subjects list scrolling */
+    .subjects-list {
+        padding: var(--spacing-sm) 0;
+        mask-image: linear-gradient(to right, black 80%, transparent 100%);
+        -webkit-mask-image: linear-gradient(to right, black 80%, transparent 100%);
+    }
+    
+    /* Improved form elements */
+    input, textarea, select {
+        border: 1px solid var(--border-color);
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        padding: 10px 12px;
+        border-radius: var(--border-radius-md);
+        width: 100%;
+        font-family: var(--font-family-primary);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    input:focus, textarea:focus, select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
+    }
+    
+    .btn {
+        position: relative;
+        overflow: hidden;
+        padding: 10px 16px;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        background-color: var(--primary-color);
+        color: white;
+        box-shadow: 0 2px 6px rgba(var(--primary-color-rgb), 0.3);
+    }
+    
+    .btn:hover {
+        background-color: var(--primary-dark);
+        box-shadow: 0 4px 8px rgba(var(--primary-color-rgb), 0.4);
+    }
+    
+    .btn:active {
+        transform: scale(0.97);
+        box-shadow: 0 1px 3px rgba(var(--primary-color-rgb), 0.3);
+    }
+    
+    .primary-btn {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .outline-btn {
+        background-color: transparent;
+        color: var(--primary-color);
+        border: 1px solid var(--primary-color);
+        box-shadow: none;
+    }
+    
+    .outline-btn:hover {
+        background-color: rgba(var(--primary-color-rgb), 0.1);
+    }
+    
+    /* Improved chat area */
+    .chat-container {
+        border-radius: var(--border-radius-lg);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+    
+    .chat-messages {
+        padding: var(--spacing-md);
+    }
+    
+    .chat-message {
+        border-radius: var(--border-radius-md);
+        margin-bottom: var(--spacing-sm);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+    
+    .chat-form {
+        padding: var(--spacing-sm);
+        background-color: var(--bg-light);
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .chat-form input {
+        border-radius: var(--border-radius-pill);
+        padding: 10px 16px;
+    }
+    
+    .chat-form button {
+        border-radius: var(--border-radius-circle);
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+/* Scroll Indicator Fade */
+.scroll-indicator.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* Improved Button Styles */
+.btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.4);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%, -50%);
+    transform-origin: 50% 50%;
+}
+
+.btn:active::after {
+    opacity: 1;
+    animation: ripple 0.4s ease-out;
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(0, 0) translate(-50%, -50%);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(20, 20) translate(-50%, -50%);
+        opacity: 0;
+    }
+}
+
+/* Mobile menu animation fixes */
+@media (max-width: 768px) {
+    .nav-links {
+        animation: slide-in-right 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        animation-play-state: paused;
+    }
+    
+    .nav-links.active {
+        animation-play-state: running;
+    }
+    
+    @keyframes slide-in-right {
+        from { right: -100%; }
+        to { right: 0; }
+    }
+    
+    /* Pulse animation for mobile indicators */
+    .mobile-indicator {
+        position: relative;
+    }
+    
+    .mobile-indicator::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        width: 8px;
+        height: 8px;
+        background-color: var(--primary-color);
+        border-radius: 50%;
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+    
+    /* Fix for mobile sticky header */
+    header.scrolled {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* Dark mode transition fix */
+[data-theme="dark"] .btn, 
+[data-theme="dark"] input, 
+[data-theme="dark"] textarea, 
+[data-theme="dark"] select {
+    transition: all 0.2s ease;
 }
