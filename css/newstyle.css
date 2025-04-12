@@ -1,5 +1,3 @@
-
-
 :root {
     
     --primary-color: #6366f1;
@@ -2138,12 +2136,29 @@ section h2::after {
     -webkit-backdrop-filter: blur(4px);
     transition: all var(--transition-normal);
     box-shadow: var(--shadow-inner);
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .chat-form input:focus {
     border-color: rgba(var(--primary-color-rgb), 0.5);
     box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.1);
     background-color: rgba(var(--bg-color-rgb), 0.9);
+    opacity: 1;
+}
+
+/* Fix for chat input not being interactable */
+#chat-input {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    z-index: 100;
+}
+
+/* Make sure the chat form is properly displayed when not hidden */
+#chat-form:not(.hidden) {
+    display: flex;
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .chat-form button {
