@@ -1,29 +1,26 @@
-/**
- * Core functionality for KKNotes Admin Dashboard
- * Handles initialization, authentication, and core features
- */
 
-// Global state
+
+
 let currentUser = null;
 let isAdmin = false;
 let isSuperAdmin = false;
 
-// Initialize the application
+
 document.addEventListener('DOMContentLoaded', () => {
     initializeApp();
     setupEventListeners();
 });
 
-// Initialize the application
+
 async function initializeApp() {
     try {
-        // Wait for Firebase to initialize
+        
         await waitForFirebase();
         
-        // Set up authentication listener
+        
         firebase.auth().onAuthStateChanged(handleAuthStateChange);
         
-        // Initialize UI components
+        
         initializeUI();
         
         console.log('App initialized successfully');
@@ -33,7 +30,7 @@ async function initializeApp() {
     }
 }
 
-// Wait for Firebase to initialize
+
 function waitForFirebase() {
     return new Promise((resolve, reject) => {
         const checkFirebase = () => {
@@ -49,7 +46,7 @@ function waitForFirebase() {
     });
 }
 
-// Handle authentication state changes
+
 async function handleAuthStateChange(user) {
     try {
         if (user) {
@@ -75,9 +72,9 @@ async function handleAuthStateChange(user) {
     }
 }
 
-// Set up event listeners
+
 function setupEventListeners() {
-    // Auth buttons
+    
     const loginBtn = document.getElementById('login-btn');
     const logoutBtn = document.getElementById('logout-btn');
     
@@ -89,58 +86,58 @@ function setupEventListeners() {
         logoutBtn.addEventListener('click', handleLogout);
     }
     
-    // Navigation
+    
     const navItems = document.querySelectorAll('.nav-item');
     navItems.forEach(item => {
         item.addEventListener('click', handleNavigation);
     });
     
-    // Search
+    
     const searchInput = document.querySelector('.search-bar input');
     if (searchInput) {
         searchInput.addEventListener('input', debounce(handleSearch, 300));
     }
     
-    // Content tabs
+    
     const tabButtons = document.querySelectorAll('.tab-btn');
     tabButtons.forEach(btn => {
         btn.addEventListener('click', handleTabChange);
     });
     
-    // Add content button
+    
     const addContentBtn = document.getElementById('addContentBtn');
     if (addContentBtn) {
         addContentBtn.addEventListener('click', handleAddContent);
     }
     
-    // Theme toggle
+    
     const themeToggleBtn = document.getElementById('theme-toggle');
     if (themeToggleBtn) {
         themeToggleBtn.addEventListener('click', toggleTheme);
     }
     
-    // Semester and subject selectors
+    
     setupContentSelectors();
 }
 
-// Initialize UI components
+
 function initializeUI() {
-    // Set initial theme
+    
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.body.classList.toggle('dark-theme', savedTheme === 'dark');
     updateThemeButton(savedTheme);
     
-    // Initialize selectors
+    
     initializeSelectors();
     
-    // Load initial view
+    
     const defaultView = document.querySelector('.nav-item');
     if (defaultView) {
         defaultView.click();
     }
 }
 
-// Initialize semester and subject selectors
+
 function initializeSelectors() {
     const selectors = {
         notesSemester: document.getElementById('notesSemesterSelect'),
@@ -149,7 +146,7 @@ function initializeSelectors() {
         videosSubject: document.getElementById('videosSubjectSelect')
     };
     
-    // Populate semester selectors
+    
     for (const selector of [selectors.notesSemester, selectors.videosSemester]) {
         if (selector) {
             for (let i = 1; i <= 8; i++) {
@@ -161,7 +158,7 @@ function initializeSelectors() {
         }
     }
     
-    // Set up change listeners
+    
     if (selectors.notesSemester) {
         selectors.notesSemester.addEventListener('change', () => {
             loadSubjectsForSemester(selectors.notesSemester.value, selectors.notesSubject);
@@ -189,16 +186,16 @@ function initializeSelectors() {
     }
 }
 
-// Load subjects for a semester
+
 async function loadSubjectsForSemester(semester, selectElement) {
     try {
         const snapshot = await database.ref(`subjects/${semester}`).once('value');
         const subjects = snapshot.val() || [];
         
-        // Clear existing options
+        
         selectElement.innerHTML = '<option value="">Select Subject</option>';
         
-        // Add new options
+        
         subjects.forEach(subject => {
             const option = document.createElement('option');
             option.value = subject.key;
@@ -211,9 +208,9 @@ async function loadSubjectsForSemester(semester, selectElement) {
     }
 }
 
-// Event Handlers
+
 async function handleLogin() {
-    // Use centralized auth state handler rather than implementing here
+    
     if (window.authState && window.authState.showLogin) {
         window.authState.showLogin();
     } else {
@@ -234,35 +231,35 @@ async function handleLogout() {
 function handleNavigation(event) {
     event.preventDefault();
     
-    // Update active state
+    
     document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.remove('active');
     });
     event.currentTarget.classList.add('active');
     
-    // Show corresponding section
+    
     const targetId = event.currentTarget.getAttribute('href').substring(1);
     document.querySelectorAll('.dashboard-section').forEach(section => {
         section.classList.toggle('active', section.id === targetId);
     });
     
-    // Update breadcrumb
+    
     updateBreadcrumb(event.currentTarget.querySelector('span').textContent);
     
-    // Load section data if needed
+    
     loadSectionData(targetId);
 }
 
 function handleTabChange(event) {
     const tabId = event.currentTarget.dataset.tab;
     
-    // Update active state
+    
     document.querySelectorAll('.tab-btn').forEach(tab => {
         tab.classList.remove('active');
     });
     event.currentTarget.classList.add('active');
     
-    // Load content
+    
     loadContentPanel(tabId);
 }
 
@@ -281,7 +278,7 @@ function handleAddContent() {
     }
 }
 
-// Utility functions
+
 function showToast(message, type = 'info') {
     const toast = document.createElement('div');
     toast.className = `toast-notification ${type}`;
@@ -333,7 +330,7 @@ function updateThemeButton(theme) {
     }
 }
 
-// Export necessary functions
+
 window.adminCore = {
     showToast,
     showError,
@@ -341,3 +338,5 @@ window.adminCore = {
     handleLogout,
     loadSubjectsForSemester
 }; 
+
+

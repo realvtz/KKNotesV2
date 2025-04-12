@@ -1,68 +1,152 @@
-/**
- * Theme handling for KKNotes
- * Controls light/dark mode functionality
- */
 
-// DOM Elements
-const themeToggle = document.getElementById('theme-toggle');
-const themeIcon = themeToggle ? themeToggle.querySelector('i') : null;
 
-// Initialize theme state
-let currentTheme = localStorage.getItem('theme') || 'light';
 
-// Event Listeners
-document.addEventListener('DOMContentLoaded', initializeTheme);
-if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Theme.js: DOM loaded, initializing theme handler');
+    initThemeHandler();
+});
 
-/**
- * Initialize the theme based on user preference or system preference
- */
-function initializeTheme() {
-    console.log('Initializing theme...');
+function initThemeHandler() {
     
-    // Check if user has previously set a theme
-    if (currentTheme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        if (themeIcon) {
-            themeIcon.classList.remove('fa-moon');
-            themeIcon.classList.add('fa-sun');
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIcon = themeToggle ? themeToggle.querySelector('i') : null;
+    const html = document.documentElement;
+    
+    console.log('Theme toggle element found:', !!themeToggle);
+    
+    
+    function getPreferredTheme() {
+        
+        const storedTheme = localStorage.getItem('theme');
+        if (storedTheme) {
+            console.log('Using stored theme preference:', storedTheme);
+            return storedTheme;
         }
-    } else {
-        document.documentElement.setAttribute('data-theme', 'light');
-        if (themeIcon) {
-            themeIcon.classList.remove('fa-sun');
-            themeIcon.classList.add('fa-moon');
+        
+        
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            console.log('Using device dark mode preference');
+            return 'dark';
         }
-    }
-}
-
-/**
- * Toggle between light and dark theme
- */
-function toggleTheme() {
-    if (currentTheme === 'light') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        localStorage.setItem('theme', 'dark');
-        currentTheme = 'dark';
-        if (themeIcon) {
-            themeIcon.classList.remove('fa-moon');
-            themeIcon.classList.add('fa-sun');
-        }
-    } else {
-        document.documentElement.setAttribute('data-theme', 'light');
-        localStorage.setItem('theme', 'light');
-        currentTheme = 'light';
-        if (themeIcon) {
-            themeIcon.classList.remove('fa-sun');
-            themeIcon.classList.add('fa-moon');
-        }
+        
+        
+        console.log('No preference found, defaulting to light theme');
+        return 'light';
     }
     
-    // Add rotation animation
+    
+    let currentTheme = getPreferredTheme();
+    
+    
     if (themeToggle) {
-        themeToggle.classList.add('rotate');
-        setTimeout(() => {
-            themeToggle.classList.remove('rotate');
-        }, 500);
+        themeToggle.addEventListener('click', function() {
+            console.log('Theme toggle clicked');
+            toggleTheme();
+        });
+        console.log('Theme toggle event listener attached');
+    } else {
+        console.warn('Theme toggle button not found!');
     }
+    
+    
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    mediaQuery.addEventListener('change', handleDeviceThemeChange);
+    
+    
+    function handleDeviceThemeChange(e) {
+        
+        if (!localStorage.getItem('theme')) {
+            currentTheme = e.matches ? 'dark' : 'light';
+            console.log('Device theme changed to:', currentTheme);
+            applyTheme(currentTheme);
+        }
+    }
+    
+    
+    function applyTheme(theme) {
+        console.log('Applying theme:', theme);
+        
+        
+        html.setAttribute('data-theme', theme);
+        
+        
+        if (theme === 'dark') {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
+        
+        
+        updateThemeIcons(theme);
+    }
+    
+    
+    function initializeTheme() {
+        console.log('Initializing theme to:', currentTheme);
+        
+        
+        applyTheme(currentTheme);
+        
+        
+        setTimeout(() => {
+            document.body.style.transition = 'background-color 0.3s ease, color 0.3s ease';
+        }, 100);
+    }
+    
+    
+    function toggleTheme() {
+        console.log('Toggling theme from:', currentTheme);
+        
+        if (currentTheme === 'light') {
+            
+            currentTheme = 'dark';
+        } else {
+            
+            currentTheme = 'light';
+        }
+        
+        console.log('New theme:', currentTheme);
+        
+        
+        localStorage.setItem('theme', currentTheme);
+        
+        
+        applyTheme(currentTheme);
+        
+        
+        if (themeToggle) {
+            themeToggle.classList.add('rotate');
+            setTimeout(() => {
+                themeToggle.classList.remove('rotate');
+            }, 500);
+        }
+    }
+    
+    
+    function updateThemeIcons(theme) {
+        if (!themeIcon) return;
+        
+        console.log('Updating theme icon for:', theme);
+        
+        if (theme === 'dark') {
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        } else {
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+        }
+    }
+    
+    
+    initializeTheme();
+    
+    
+    window.KKTheme = {
+        getPreferredTheme,
+        toggleTheme,
+        applyTheme,
+        getCurrentTheme: () => currentTheme
+    };
+    
+    console.log('Theme handler initialized successfully');
 } 

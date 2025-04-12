@@ -1,10 +1,38 @@
-/**
- * Navigation helpers for KKNotes
- * Handles navigation between pages and login redirections
- */
+
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Handle admin link clicks to check authentication first
+    
+    const menuToggle = document.querySelector('.menu-toggle');
+    const navLinks = document.querySelector('.nav-links');
+    const body = document.body;
+    
+    if (menuToggle && navLinks) {
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            body.classList.toggle('menu-open');
+        });
+    }
+    
+    
+    const mobileNavLinks = document.querySelectorAll('.nav-links a');
+    mobileNavLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            navLinks.classList.remove('active');
+            body.classList.remove('menu-open');
+        });
+    });
+    
+    
+    document.addEventListener('click', (event) => {
+        if (navLinks && navLinks.classList.contains('active') && 
+            !navLinks.contains(event.target) && 
+            !menuToggle.contains(event.target)) {
+            navLinks.classList.remove('active');
+            body.classList.remove('menu-open');
+        }
+    });
+    
+    
     const adminLinks = document.querySelectorAll('.admin-link');
     adminLinks.forEach(link => {
         link.addEventListener('click', function(e) {
@@ -13,10 +41,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 console.log('User not logged in, showing auth overlay');
                 
-                // Store redirect info
+                
                 sessionStorage.setItem('redirectAfterLogin', 'admin.html');
                 
-                // Show auth overlay
+                
                 const authOverlay = document.getElementById('auth-overlay');
                 if (authOverlay) {
                     authOverlay.classList.add('active');
@@ -26,24 +54,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
     
-    // Check if we should show the login overlay (coming from admin page)
+    
     const shouldShowLogin = sessionStorage.getItem('showLoginOverlay');
     if (shouldShowLogin === 'true') {
-        // Remove the flag from sessionStorage
+        
         sessionStorage.removeItem('showLoginOverlay');
         
-        // Get auth overlay and show it
+        
         const authOverlay = document.getElementById('auth-overlay');
         if (authOverlay) {
             console.log('Showing auth overlay after redirect');
             setTimeout(() => {
                 authOverlay.classList.add('active');
                 document.body.classList.add('no-scroll');
-            }, 500); // Small delay to ensure the page has loaded
+            }, 500); 
         }
     }
     
-    // Check if we need to redirect after login
+    
     const redirectTarget = sessionStorage.getItem('redirectAfterLogin');
     if (redirectTarget && firebase.auth().currentUser) {
         console.log('User is logged in, redirecting to:', redirectTarget);

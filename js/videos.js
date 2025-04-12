@@ -1,59 +1,46 @@
-/**
- * Videos module for KKNotes
- * Handles all video listing and display functionality
- */
-
-// DOM Elements
 const videoSemesterTabs = document.querySelectorAll('.videos-section .sem-tab');
 const videosContainer = document.getElementById('videos-container');
 
-// Current active semester and subject for videos
-let currentVideoSemester = 's1'; // Default to S1
-let currentVideoSubject = null; // No subject selected by default
-let videoRefreshInterval; // Add variable for refresh interval
 
-// Event Listeners
+let currentVideoSemester = 's1'; 
+let currentVideoSubject = null; 
+let videoRefreshInterval; 
+
+
 document.addEventListener('DOMContentLoaded', initializeVideos);
 videoSemesterTabs.forEach(tab => tab.addEventListener('click', handleVideoSemesterChange));
 
-/**
- * Initialize videos functionality
- */
+
 function initializeVideos() {
     console.log('Initializing videos functionality...');
     
-    // Load videos for the default semester (S1)
+    
     loadVideos(currentVideoSemester);
 }
 
-/**
- * Load videos for a specific semester
- * @param {string} semester - The semester code (s1, s2, etc.)
- * @param {string} subject - Optional subject key to filter videos by
- * @param {boolean} showLoader - Whether to show the loading spinner (default: false)
- */
+
 function loadVideos(semester, subject = null, showLoader = false) {
-    // Reset current subject if loading a different semester
+    
     if (currentVideoSubject !== subject) {
         currentVideoSubject = subject;
     }
     
-    // Clear any existing refresh interval
+    
     if (videoRefreshInterval) {
         clearInterval(videoRefreshInterval);
     }
     
-    // Set a timeout to handle potential long loading times and fallback
+    
     const timeoutId = setTimeout(() => {
         console.warn('Firebase request taking longer than expected, showing empty state as fallback');
-        // If container hasn't been updated, show empty state
+        
         displayVideoEmptyState('Could not load content. Please try again later.');
     }, 8000);
     
     try {
-        // Check if we should load subjects or videos
+        
         if (!subject) {
-            // Load subjects for this semester from Firebase
+            
             database.ref(`subjects/${semester}`).once('value')
                 .then(snapshot => {
                     clearTimeout(timeoutId);
@@ -71,19 +58,19 @@ function loadVideos(semester, subject = null, showLoader = false) {
                     console.error('Error loading subjects for videos:', error);
                     displayVideoError();
                     
-                    // Try to recover by using the error handling function from main.js
+                    
                     if (window.handleError) {
                         window.handleError(error, 'Failed to load video subjects. Please try again later.');
                     }
                 });
             
-            // Set up refresh interval (30 seconds)
+            
             videoRefreshInterval = setInterval(() => {
                 console.log('Refreshing video subjects data...');
-                loadVideos(semester, subject, false); // Don't show loading spinner on refresh
+                loadVideos(semester, subject, false); 
             }, 30000);
         } else {
-            // Load videos for selected subject from Firebase
+            
             database.ref(`videos/${semester}/${subject}`).once('value')
                 .then(snapshot => {
                     clearTimeout(timeoutId);
@@ -91,26 +78,26 @@ function loadVideos(semester, subject = null, showLoader = false) {
                     if (videos) {
                         console.log(`Successfully loaded videos for ${semester}/${subject}`);
                         
-                        // Process each video to ensure URLs are formatted correctly
+                        
                         Object.keys(videos).forEach(key => {
-                            // IMPORTANT FIX: Support both 'url' and 'link' fields
-                            // Copy the link field to url field if url is missing but link exists
+                            
+                            
                             if (!videos[key].url && videos[key].link) {
                                 videos[key].url = videos[key].link;
                                 console.log(`Fixed: Copied link field to url field for ${key}:`, videos[key].link);
                             }
                             
-                            // Fix URL if it exists
+                            
                             let url = videos[key].url || videos[key].link || '';
                             if (url) {
                                 console.log(`Processing video URL: ${url}`);
                                 
-                                // Determine content type (video, playlist, channel)
+                                
                                 if (url.includes('youtube.com/playlist') || url.includes('list=')) {
                                     videos[key].contentType = 'playlist';
                                     console.log(`Detected playlist: ${url}`);
                                     
-                                    // Extract the playlist ID for debugging
+                                    
                                     const playlistMatch = url.match(/[?&]list=([a-zA-Z0-9_-]+)/);
                                     if (playlistMatch && playlistMatch[1]) {
                                         videos[key].playlistId = playlistMatch[1];
@@ -122,11 +109,11 @@ function loadVideos(semester, subject = null, showLoader = false) {
                                     videos[key].contentType = 'video';
                                 }
                                 
-                                // Check if it's a relative URL that would resolve to localhost
+                                
                                 if (url.startsWith('/') && !url.startsWith('//')) {
                                     console.warn(`Found relative URL that would resolve to localhost: ${url}`);
                                     
-                                    // If it's a YouTube relative URL, fix it
+                                    
                                     if (url.includes('youtu.be/')) {
                                         const videoIdMatch = url.match(/\/youtu\.be\/([a-zA-Z0-9_-]+)/);
                                         if (videoIdMatch && videoIdMatch[1]) {
@@ -141,7 +128,7 @@ function loadVideos(semester, subject = null, showLoader = false) {
                                             url = 'https://www.' + match[0];
                                             console.log(`Fixed relative YouTube URL: ${url}`);
                                             
-                                            // Try to extract video ID
+                                            
                                             const videoIdMatch = url.match(/[?&]v=([a-zA-Z0-9_-]+)/);
                                             if (videoIdMatch && videoIdMatch[1]) {
                                                 videos[key].youtubeId = videoIdMatch[1];
@@ -150,12 +137,12 @@ function loadVideos(semester, subject = null, showLoader = false) {
                                     }
                                 }
                                 
-                                // ADDED: Detect playlists and extract playlist IDs
+                                
                                 if (url.includes('playlist') || url.includes('list=')) {
                                     console.log('Detected playlist URL:', url);
                                     videos[key].contentType = 'playlist';
                                     
-                                    // Extract playlist ID
+                                    
                                     const playlistMatch = url.match(/[?&]list=([a-zA-Z0-9_-]+)/);
                                     if (playlistMatch && playlistMatch[1]) {
                                         videos[key].playlistId = playlistMatch[1];
@@ -163,12 +150,12 @@ function loadVideos(semester, subject = null, showLoader = false) {
                                     }
                                 }
                                 
-                                // Fix malformed URLs containing localhost or undefined
+                                
                                 if (url.includes('localhost') || url.includes('undefined')) {
                                     console.warn(`Fixing malformed URL containing localhost: ${url}`);
                                     
                                     if (url.includes('youtu.be')) {
-                                        // Extract the youtu.be portion and video ID
+                                        
                                         const match = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
                                         if (match && match[1]) {
                                             const videoId = match[1];
@@ -177,13 +164,13 @@ function loadVideos(semester, subject = null, showLoader = false) {
                                             console.log(`Fixed youtu.be URL with localhost: ${url}`);
                                         }
                                     } else if (url.includes('youtube.com')) {
-                                        // Extract the YouTube portion
+                                        
                                         const match = url.match(/youtube\.com.+/);
                                         if (match) {
                                             url = 'https://www.' + match[0];
                                             console.log(`Fixed YouTube URL with localhost: ${url}`);
                                             
-                                            // Try to extract video ID
+                                            
                                             const videoIdMatch = url.match(/[?&]v=([a-zA-Z0-9_-]+)/);
                                             if (videoIdMatch && videoIdMatch[1]) {
                                                 videos[key].youtubeId = videoIdMatch[1];
@@ -192,16 +179,16 @@ function loadVideos(semester, subject = null, showLoader = false) {
                                     }
                                 }
                                 
-                                // Add protocol if missing
+                                
                                 if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                                    // Missing protocol
+                                    
                                     if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                                        url = 'https://' + url.replace(/^\/\//, '');
+                                        url = 'https://' + url.replace(/^\/\\/, '');
                                         console.log(`Added protocol to URL: ${url}`);
                                     }
                                 }
                                 
-                                // If it's a youtu.be URL, make sure we have the video ID
+                                
                                 if (url.includes('youtu.be/') && !videos[key].youtubeId) {
                                     const match = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
                                     if (match && match[1]) {
@@ -210,15 +197,15 @@ function loadVideos(semester, subject = null, showLoader = false) {
                                     }
                                 }
                                 
-                                // Validate URL if possible
+                                
                                 try {
                                     new URL(url);
-                                    // Update the URL in the data
+                                    
                                     videos[key].url = url;
                                 } catch (error) {
                                     console.error(`Invalid URL after formatting: ${url}`, error);
                                     
-                                    // If we have a video ID, create a proper YouTube URL
+                                    
                                     if (videos[key].youtubeId) {
                                         videos[key].url = `https://www.youtube.com/watch?v=${videos[key].youtubeId}`;
                                         console.log(`Created fallback URL from video ID: ${videos[key].url}`);
@@ -238,16 +225,16 @@ function loadVideos(semester, subject = null, showLoader = false) {
                     console.error('Error loading videos:', error);
                     displayVideoError();
                     
-                    // Try to recover by using the error handling function from main.js
+                    
                     if (window.handleError) {
                         window.handleError(error, 'Failed to load videos. Please try again later.');
                     }
                 });
             
-            // Set up refresh interval (30 seconds)
+            
             videoRefreshInterval = setInterval(() => {
                 console.log('Refreshing videos data...');
-                loadVideos(semester, subject, false); // Don't show loading spinner on refresh
+                loadVideos(semester, subject, false); 
             }, 30000);
         }
     } catch (error) {
@@ -257,29 +244,25 @@ function loadVideos(semester, subject = null, showLoader = false) {
     }
 }
 
-/**
- * Display subjects for video selection
- * @param {Array} subjects - The subjects array from Firebase
- * @param {string} semester - The current semester code
- */
+
 function displayVideoSubjects(subjects, semester) {
     if (!videosContainer) return;
     
-    // Create container for subjects
+    
     const subjectsContainer = document.createElement('div');
     subjectsContainer.className = 'subjects-container';
     
-    // Add semester title
+    
     const semTitle = document.createElement('h3');
     semTitle.className = 'semester-title';
     semTitle.textContent = `Semester ${semester.substring(1)} Videos`;
     subjectsContainer.appendChild(semTitle);
     
-    // Create subject list
+    
     const subjectsList = document.createElement('div');
     subjectsList.className = 'subjects-list';
     
-    // Create back button for mobile (only shown when viewing videos)
+    
     const backButton = document.createElement('button');
     backButton.className = 'back-button hidden';
     backButton.innerHTML = '<i class="fas fa-arrow-left"></i> Back to Subjects';
@@ -289,7 +272,7 @@ function displayVideoSubjects(subjects, semester) {
     });
     subjectsContainer.appendChild(backButton);
     
-    // Add each subject as a button
+    
     subjects.forEach(subject => {
         const subjectBtn = document.createElement('button');
         subjectBtn.className = 'subject-btn';
@@ -297,7 +280,7 @@ function displayVideoSubjects(subjects, semester) {
         subjectBtn.dataset.id = subject.id || subject.key;
         subjectBtn.textContent = subject.name;
         
-        // Add click event to load videos for this subject
+        
         subjectBtn.addEventListener('click', handleVideoSubjectClick);
         
         subjectsList.appendChild(subjectBtn);
@@ -305,42 +288,38 @@ function displayVideoSubjects(subjects, semester) {
     
     subjectsContainer.appendChild(subjectsList);
     
-    // Clear container and add subjects
+    
     videosContainer.innerHTML = '';
     videosContainer.appendChild(subjectsContainer);
     
-    // Apply animation for smooth transition
+    
     if (window.applyContentLoadedAnimation) {
         window.applyContentLoadedAnimation(videosContainer);
     }
 }
 
-/**
- * Sanitize and fix YouTube URLs coming from Firebase
- * @param {Object} videoData - Raw video data from Firebase
- * @returns {Object} - Sanitized video data with fixed URLs
- */
+
 function sanitizeVideoData(videoData) {
     if (!videoData) return videoData;
     
-    // Create a shallow copy to avoid modifying the original object directly
+    
     const video = {...videoData};
     
-    // Handle URL similar to how we do it in createVideoCard
+    
     if (video.url) {
         let url = video.url.trim();
         
-        // Fix malformed URLs containing localhost or undefined
+        
         if (url.includes('localhost') || url.includes('undefined')) {
             if (url.includes('youtube.com')) {
-                // Extract the YouTube portion from the malformed URL
+                
                 const match = url.match(/youtube\.com.*/);
                 if (match) {
                     url = 'https://www.' + match[0];
                     console.log('Sanitizer: Fixed YouTube URL:', url);
                 }
             } else if (url.includes('youtu.be')) {
-                // Extract the youtu.be portion from the malformed URL
+                
                 const match = url.match(/youtu\.be.*/);
                 if (match) {
                     url = 'https://' + match[0];
@@ -348,12 +327,12 @@ function sanitizeVideoData(videoData) {
                 }
             }
         } else if (!url.startsWith('http://') && !url.startsWith('https://')) {
-            // Add https:// prefix if missing
-            url = 'https://' + url.replace(/^\/\//, '');
+            
+            url = 'https://' + url.replace(/^\/\\/, '');
             console.log('Sanitizer: Added https:// prefix to URL:', url);
         }
         
-        // Update the URL in the copy
+        
         video.url = url;
     }
     
@@ -361,26 +340,22 @@ function sanitizeVideoData(videoData) {
     return video;
 }
 
-/**
- * Create a video card element
- * @param {Object} video - The video object
- * @returns {HTMLElement} - The video card element
- */
+
 function createVideoCard(video) {
     const card = document.createElement('div');
     card.className = 'video-card';
     
-    // DEBUGGING: Log the original video object to see what we're working with
+    
     console.log('Creating video card for:', JSON.stringify(video));
     
-    // IMPORTANT FIX: Support both 'url' and 'link' fields
-    // Copy the link field to url field if url is missing but link exists
+    
+    
     if (!video.url && video.link) {
         video.url = video.link;
         console.log('Fixed: Copied link field to url field:', video.link);
     }
     
-    // DIRECT PLAYLIST HANDLING: Extract playlist ID if this is a playlist
+    
     let playlistId = null;
     if (video.url && video.url.includes('playlist?list=')) {
         const match = video.url.match(/[?&]list=([a-zA-Z0-9_-]+)/);
@@ -392,16 +367,16 @@ function createVideoCard(video) {
         }
     }
     
-    // For debugging - add data-* attributes with the video details
+    
     if (video.url) card.dataset.url = video.url;
     if (video.link) card.dataset.link = video.link;
     if (video.youtubeId) card.dataset.youtubeId = video.youtubeId;
     if (playlistId || video.playlistId) card.dataset.playlistId = playlistId || video.playlistId;
     
-    // Set content type if not already set
+    
     const contentType = video.contentType || 'video';
     
-    // Force styles with !important to override any conflicting CSS
+    
     card.style.cssText = `
         min-height: 450px !important;
         width: 100% !important;
@@ -417,33 +392,32 @@ function createVideoCard(video) {
         position: relative !important;
     `;
     
-    // Use the direct values from the video object
+    
     let videoId = video.youtubeId || '';
     
-    // Handle URL similar to notes.js to fix localhost redirects
+    
     let youtubeUrl = video.url || video.link || '';
     let hasURLIssue = false;
     
-    // If URL isn't set, default to a safe value
+    
     if (!youtubeUrl) {
         console.warn('Video is missing URL:', video);
-        youtubeUrl = '#'; // Fallback to prevent broken links
+        youtubeUrl = '#'; 
         hasURLIssue = true;
     }
     
-    // IMPORTANT: For playlists, directly use the playlist URL format for maximum compatibility
+    
     if (contentType === 'playlist' && video.playlistId) {
         youtubeUrl = `https://www.youtube.com/playlist?list=${video.playlistId}`;
         console.log('Using direct playlist URL format:', youtubeUrl);
     }
     
-    // Special fix for relative URLs (the main cause of localhost issues)
+    
     if (youtubeUrl.startsWith('/') && !youtubeUrl.startsWith('//')) {
-        // This is a relative URL which will resolve to the current domain (localhost)
         console.warn('Found relative URL that would resolve to localhost:', youtubeUrl);
         hasURLIssue = true;
         
-        // Check if it contains YouTube identifiers
+        
         if (youtubeUrl.includes('youtube.com') || youtubeUrl.includes('youtu.be')) {
             const match = youtubeUrl.match(/(youtube\.com|youtu\.be).*/);
             if (match) {
@@ -453,23 +427,23 @@ function createVideoCard(video) {
         }
     }
     
-    // Direct fix for youtu.be URLs from the database
+    
     if (youtubeUrl.includes('youtu.be/')) {
-        // Extract the video ID from youtu.be URL
+        
         const parts = youtubeUrl.split('youtu.be/');
         if (parts.length > 1) {
             const videoIdPart = parts[1].split('?')[0].split('&')[0];
-            // Set it as the video ID for thumbnail and as backup
+            
             if (videoIdPart && videoIdPart.length > 0) {
                 videoId = videoIdPart;
                 console.log('Extracted video ID from youtu.be URL:', videoId);
                 
-                // Ensure the URL is absolute
+                
                 if (!youtubeUrl.startsWith('http')) {
                     if (youtubeUrl.startsWith('//')) {
                         youtubeUrl = 'https:' + youtubeUrl;
                     } else if (youtubeUrl.startsWith('/')) {
-                        youtubeUrl = 'https://youtu.be' + youtubeUrl.substring(8); // Skip "/youtu.be"
+                        youtubeUrl = 'https://youtu.be' + youtubeUrl.substring(8); 
                     } else {
                         youtubeUrl = 'https://youtu.be/' + videoIdPart;
                     }
@@ -480,57 +454,57 @@ function createVideoCard(video) {
         }
     }
     
-    // Fix malformed URLs containing localhost or undefined
+    
     if (youtubeUrl.includes('localhost') || youtubeUrl.includes('undefined')) {
         console.warn('Fixing malformed URL with localhost:', youtubeUrl);
         hasURLIssue = true;
         if (youtubeUrl.includes('youtube.com')) {
-            // Extract the YouTube portion from the malformed URL
+            
             const match = youtubeUrl.match(/youtube\.com.*/);
             if (match) {
                 youtubeUrl = 'https://www.' + match[0];
                 console.log('Fixed YouTube URL:', youtubeUrl);
             }
         } else if (youtubeUrl.includes('youtu.be')) {
-            // Extract the youtu.be portion from the malformed URL
+            
             const match = youtubeUrl.match(/youtu\.be.*/);
             if (match) {
                 youtubeUrl = 'https://' + match[0];
                 console.log('Fixed youtu.be URL:', youtubeUrl);
             }
         } else if (videoId) {
-            // If we have a video ID but the URL is malformed, create a proper URL
+            
             youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
             console.log('Created proper URL from video ID:', youtubeUrl);
         }
     }
     
-    // Add https:// prefix if missing and not already handled
+    
     if (!youtubeUrl.startsWith('http://') && !youtubeUrl.startsWith('https://') && youtubeUrl !== '#') {
         hasURLIssue = true;
-        youtubeUrl = 'https://' + youtubeUrl.replace(/^\/\//, '');
+        youtubeUrl = 'https://' + youtubeUrl.replace(/^\/\\/, '');
         console.log('Added https:// prefix to URL:', youtubeUrl);
     }
     
     try {
-        // Try to validate the URL
+        
         new URL(youtubeUrl);
     } catch (error) {
         console.error('Invalid URL after formatting:', youtubeUrl, error);
         hasURLIssue = true;
-        // If we have a video ID, create a proper YouTube URL
+        
         if (videoId) {
             youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
             console.log('Created fallback URL from video ID:', youtubeUrl);
         } else {
-            youtubeUrl = '#'; // Fallback to prevent broken links
+            youtubeUrl = '#'; 
         }
     }
     
-    // Direct logging of the values we're using
+    
     console.log('Final values:', { videoId, youtubeUrl, title: video.title, hasURLIssue, contentType });
     
-    // Set play button icon and label based on content type
+    
     let playButtonIcon = 'fa-play';
     let watchButtonLabel = 'Watch on YouTube';
     let contentTypeLabel = '';
@@ -545,7 +519,7 @@ function createVideoCard(video) {
         contentTypeLabel = '<span class="content-type-label" style="position: absolute !important; top: 10px !important; right: 10px !important; background-color: rgba(255, 0, 0, 0.8) !important; color: white !important; font-size: 12px !important; padding: 4px 8px !important; border-radius: 4px !important; z-index: 2 !important;"><i class="fas fa-user" style="margin-right: 4px !important;"></i> Channel</span>';
     }
     
-    // YouTube thumbnail URL - use HD quality when available
+    
     let thumbnailUrl;
     if (videoId && contentType === 'video') {
         thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
@@ -557,10 +531,10 @@ function createVideoCard(video) {
         thumbnailUrl = 'assets/video-placeholder.jpg';
     }
     
-    // Format duration if available
+    
     const duration = video.duration ? formatDuration(video.duration) : '';
     
-    // Create card with YouTube-like appearance
+    
     card.innerHTML = `
         <div class="video-preview" style="position: relative !important; overflow: hidden !important; padding-bottom: 60% !important; border-radius: 20px 20px 0 0 !important; background-color: black !important;">
             <img src="${thumbnailUrl}" alt="${video.title}" class="video-thumbnail" style="position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; object-fit: cover !important;" onerror="this.src='assets/video-placeholder.jpg'">
@@ -606,7 +580,7 @@ function createVideoCard(video) {
         </div>
     `;
     
-    // Add helpful debug info
+    
     const debugToggle = card.querySelector('.debug-toggle');
     const debugDetails = card.querySelector('.debug-details');
     
@@ -618,7 +592,7 @@ function createVideoCard(video) {
         });
     }
     
-    // Add click handler to YouTube preview for direct linking
+    
     const previewElement = card.querySelector('.video-preview');
     if (previewElement && youtubeUrl && youtubeUrl !== '#') {
         previewElement.style.cursor = 'pointer';
@@ -631,11 +605,7 @@ function createVideoCard(video) {
     return card;
 }
 
-/**
- * Format duration in seconds to MM:SS format
- * @param {number} seconds - Duration in seconds
- * @returns {string} - Formatted duration
- */
+
 function formatDuration(seconds) {
     if (!seconds) return '';
     
@@ -645,12 +615,7 @@ function formatDuration(seconds) {
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
 }
 
-/**
- * Display videos in the container
- * @param {Object} videos - The videos object from Firebase
- * @param {string} semester - The current semester code
- * @param {string} subject - The current subject key
- */
+
 function displayVideos(videos, semester, subject) {
     if (!videosContainer) return;
     
@@ -659,58 +624,55 @@ function displayVideos(videos, semester, subject) {
         return;
     }
     
-    // Get the subject name from the active button
+    
     const activeSubjectBtn = document.querySelector('.videos-section .subject-btn.active');
     const subjectName = activeSubjectBtn ? activeSubjectBtn.textContent : 'Subject';
     
-    // Create videos list container
+    
     const videosList = document.createElement('div');
     videosList.className = 'videos-list';
     
-    // Add subject title
+    
     const subjectTitle = document.createElement('h3');
     subjectTitle.className = 'subject-title';
     subjectTitle.textContent = subjectName;
     videosList.appendChild(subjectTitle);
     
-    // Create grid container for the cards
+    
     const videosGrid = document.createElement('div');
     videosGrid.className = 'videos-grid';
     
-    // Add each video as a card
+    
     Object.keys(videos).forEach(key => {
-        // Sanitize the video data before creating the card
+        
         const sanitizedVideo = sanitizeVideoData(videos[key]);
         const videoCard = createVideoCard(sanitizedVideo);
         videosGrid.appendChild(videoCard);
     });
     
-    // Add grid to list
+    
     videosList.appendChild(videosGrid);
     
-    // Clear videos area (keeping subject list)
+    
     const existingVideosList = document.querySelector('.videos-section .videos-list');
     if (existingVideosList) {
         existingVideosList.remove();
     }
     
-    // Add the videos list
+    
     videosContainer.appendChild(videosList);
     
-    // Apply animation for smooth transition
+    
     if (window.applyContentLoadedAnimation) {
         window.applyContentLoadedAnimation(videosContainer);
     }
 }
 
-/**
- * Display empty state with custom message for videos
- * @param {string} message - Custom message to display
- */
+
 function displayVideoEmptyState(message = 'There are no videos available for this semester yet.') {
     if (!videosContainer) return;
     
-    // If we're viewing a subject, only update the videos area
+    
     const existingSubjectsContainer = document.querySelector('.videos-section .subjects-container');
     const existingVideosList = document.querySelector('.videos-section .videos-list');
     
@@ -722,7 +684,7 @@ function displayVideoEmptyState(message = 'There are no videos available for thi
             </div>
         `;
     } else {
-        // Otherwise, update the entire container
+        
         videosContainer.innerHTML = `
             <div class="empty-state">
                 <i class="fas fa-video"></i>
@@ -732,9 +694,7 @@ function displayVideoEmptyState(message = 'There are no videos available for thi
     }
 }
 
-/**
- * Display error state when videos can't be loaded
- */
+
 function displayVideoError() {
     if (!videosContainer) return;
     
@@ -746,39 +706,33 @@ function displayVideoError() {
     `;
 }
 
-/**
- * Handle video semester tab change
- * @param {Event} event - The click event
- */
+
 function handleVideoSemesterChange(event) {
     const semester = event.target.dataset.sem;
     
-    // Update active tab
+    
     videoSemesterTabs.forEach(tab => tab.classList.remove('active'));
     event.target.classList.add('active');
     
-    // Update current semester and load videos
+    
     currentVideoSemester = semester;
     loadVideos(semester);
 }
 
-/**
- * Handle video subject button click
- * @param {Event} event - The click event
- */
+
 function handleVideoSubjectClick(event) {
     const subject = event.target.dataset.subject;
     const subjectName = event.target.textContent || 'Subject';
     
-    // Update active subject button
+    
     const subjectBtns = document.querySelectorAll('.videos-section .subject-btn');
     subjectBtns.forEach(btn => btn.classList.remove('active'));
     event.target.classList.add('active');
     
-    // Show back button on mobile
+    
     const backButton = document.querySelector('.videos-section .back-button');
     if (backButton) backButton.classList.remove('hidden');
     
-    // Load videos for this subject
+    
     loadVideos(currentVideoSemester, subject);
 }

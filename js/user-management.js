@@ -1,9 +1,6 @@
-/**
- * User Management Module
- * Handles all user-related functionality including role management and user actions
- */
 
-// Data loading functions
+
+
 async function loadUsers(tableBody) {
     try {
         const snapshot = await database.ref('users').once('value');
@@ -107,7 +104,7 @@ async function loadAdmins(tableBody) {
     }
 }
 
-// Role Management Functions
+
 async function promoteToAdmin(uid) {
     try {
         const userSnapshot = await database.ref(`users/${uid}`).once('value');
@@ -198,7 +195,7 @@ async function demoteAdmin(uid) {
     }
 }
 
-// User Actions
+
 async function banUser(uid) {
     try {
         await database.ref(`users/${uid}/status`).set('banned');
@@ -244,7 +241,7 @@ async function unmuteUser(uid) {
     }
 }
 
-// Utility Functions
+
 function getRoleBadgeClass(role) {
     switch (role) {
         case 'superadmin':
@@ -310,12 +307,12 @@ function generateUserActions(uid, user) {
 }
 
 function generateAdminActions(uid, admin) {
-    // Don't allow actions on superadmins
+    
     if (admin.superAdmin) {
         return '';
     }
     
-    // For regular admins, show buttons but restrict some functionality
+    
     if (!window.authState.isSuperAdmin()) {
         return `
             <button class="btn outline-btn" onclick="promoteToSuperAdmin('${uid}')" disabled title="Only Super Admins can promote to Super Admin">
@@ -327,7 +324,7 @@ function generateAdminActions(uid, admin) {
         `;
     }
     
-    // For super admins, show fully functional buttons
+    
     return `
         <button class="btn outline-btn" onclick="promoteToSuperAdmin('${uid}')">
             <i class="fas fa-crown"></i> Make Super Admin
@@ -348,7 +345,7 @@ function formatDate(timestamp) {
     });
 }
 
-// Export functions
+
 window.userManagement = {
     loadUsers,
     loadAdmins,
@@ -360,3 +357,5 @@ window.userManagement = {
     muteUser,
     unmuteUser
 }; 
+
+

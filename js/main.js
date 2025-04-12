@@ -1,32 +1,289 @@
-/**
- * Main JavaScript for KKNotesf
- * Handles core functionalities and initializations
- */
 
-// DOM Elements
+
+
 let mainThemeToggle = document.getElementById('theme-toggle');
 const menuToggle = document.querySelector('.menu-toggle');
 const navLinks = document.querySelector('.nav-links');
 let isMobile = window.innerWidth <= 768;
 
-// Event Listeners
-document.addEventListener('DOMContentLoaded', initializeApp);
-if (mainThemeToggle) mainThemeToggle.addEventListener('click', toggleTheme);
-if (menuToggle) menuToggle.addEventListener('click', toggleMenu);
 
-// Add resize listener to detect mobile/desktop changes
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("Mobile sidebar navigation setup");
+    
+    
+    if (menuToggle) {
+        menuToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log("Menu toggle clicked - opening sidebar");
+            openSidebar();
+        });
+    } else {
+        console.error("Menu toggle button not found!");
+    }
+    
+    
+    let touchStartX = 0;
+    let touchEndX = 0;
+    const swipeThreshold = 70; 
+    
+    
+    document.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+    
+    document.addEventListener('touchend', e => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    }, { passive: true });
+    
+    
+    function handleSwipe() {
+        
+        if (touchStartX - touchEndX > swipeThreshold && !navLinks.classList.contains('active')) {
+            openSidebar();
+        }
+        
+        
+        if (touchEndX - touchStartX > swipeThreshold && navLinks.classList.contains('active')) {
+            closeSidebar();
+        }
+    }
+    
+    
+    function openSidebar() {
+        console.log("Opening sidebar");
+        if (!navLinks) {
+            console.error("Nav links element not found!");
+            return;
+        }
+        
+        navLinks.classList.add('active');
+        document.body.classList.add('menu-open');
+        
+        
+        if (!navLinks.querySelector('.sidebar-header')) {
+            setupSidebarStructure();
+        }
+    }
+    
+    
+    function setupSidebarStructure() {
+        console.log("Setting up sidebar structure");
+        
+        const sidebarHeader = document.createElement('div');
+        sidebarHeader.className = 'sidebar-header';
+        
+        
+        const sidebarTitle = document.createElement('div');
+        sidebarTitle.className = 'sidebar-title';
+        
+        
+        const logoElement = document.querySelector('.logo');
+        if (logoElement) {
+            const logo = logoElement.cloneNode(true);
+            sidebarTitle.appendChild(logo);
+        }
+        
+        
+        const titleText = document.createElement('span');
+        titleText.textContent = 'KKNotes';
+        sidebarTitle.appendChild(titleText);
+        
+        
+        const closeButton = document.createElement('button');
+        closeButton.className = 'sidebar-close';
+        closeButton.setAttribute('aria-label', 'Close menu');
+        closeButton.innerHTML = '<i class="fas fa-times"></i>';
+        
+        
+        closeButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            closeSidebar();
+        });
+        
+        
+        sidebarHeader.appendChild(sidebarTitle);
+        sidebarHeader.appendChild(closeButton);
+        
+        
+        const links = navLinks.querySelectorAll('a');
+        
+        
+        const iconMap = {
+            'Home': 'fa-home',
+            'Notes': 'fa-book-open',
+            'Videos': 'fa-video',
+            'Chat': 'fa-comments',
+            'About': 'fa-info-circle',
+            'Admin': 'fa-lock'
+        };
+        
+        
+        links.forEach(link => {
+            const text = link.textContent.trim();
+            const icon = iconMap[text] || 'fa-link';
+            
+            
+            if (!link.querySelector('i')) {
+                link.innerHTML = `<i class="fas ${icon}"></i> ${text}`;
+            }
+            
+            
+            link.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
+        
+        
+        const sidebarFooter = document.createElement('div');
+        sidebarFooter.className = 'sidebar-footer';
+        
+        
+        const navDivider = document.createElement('div');
+        navDivider.className = 'nav-divider';
+        
+        
+        navLinks.insertBefore(sidebarHeader, navLinks.firstChild);
+        navLinks.appendChild(navDivider);
+        navLinks.appendChild(sidebarFooter);
+        
+        
+        try {
+            firebase.auth().onAuthStateChanged(user => {
+                updateSidebarUserProfile(user, sidebarFooter);
+            });
+        } catch (error) {
+            console.error("Error setting up auth listener:", error);
+        }
+    }
+    
+    
+    function closeSidebar() {
+        console.log("Closing sidebar");
+        if (!navLinks) {
+            console.error("Nav links element not found!");
+            return;
+        }
+        
+        navLinks.classList.remove('active');
+        document.body.classList.remove('menu-open');
+    }
+    
+    
+    function updateSidebarUserProfile(user, footerElement) {
+        if (!footerElement) return;
+        
+        
+        footerElement.innerHTML = '';
+        
+        if (user) {
+            
+            const userProfile = document.createElement('div');
+            userProfile.className = 'sidebar-user-profile';
+            
+            
+            const userAvatar = document.createElement('img');
+            userAvatar.src = user.photoURL || 'assets/avatars/default-avatar.png';
+            userAvatar.alt = 'User profile';
+            userProfile.appendChild(userAvatar);
+            
+            
+            const userInfo = document.createElement('div');
+            userInfo.className = 'sidebar-user-info';
+            
+            const userName = document.createElement('div');
+            userName.className = 'sidebar-user-name';
+            userName.textContent = user.displayName || 'User';
+            userInfo.appendChild(userName);
+            
+            const userAction = document.createElement('div');
+            userAction.className = 'sidebar-user-action';
+            userAction.innerHTML = '<i class="fas fa-sign-out-alt"></i> Sign Out';
+            userAction.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                try {
+                    firebase.auth().signOut().then(() => {
+                        closeSidebar();
+                    }).catch(error => {
+                        console.error('Sign out error:', error);
+                    });
+                } catch (error) {
+                    console.error("Error signing out:", error);
+                }
+            });
+            userInfo.appendChild(userAction);
+            
+            userProfile.appendChild(userInfo);
+            footerElement.appendChild(userProfile);
+        } else {
+            
+            const loginButton = document.createElement('button');
+            loginButton.className = 'btn primary-btn';
+            loginButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+            loginButton.style.width = '100%';
+            loginButton.style.marginTop = 'var(--spacing-md)';
+            
+            loginButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                closeSidebar();
+                
+                
+                setTimeout(() => {
+                    const authOverlay = document.getElementById('auth-overlay');
+                    if (authOverlay) {
+                        authOverlay.classList.add('active');
+                        document.body.classList.add('no-scroll');
+                    }
+                }, 300);
+            });
+            
+            footerElement.appendChild(loginButton);
+        }
+    }
+    
+    
+    window.openSidebar = openSidebar;
+    window.closeSidebar = closeSidebar;
+    window.setupSidebarStructure = setupSidebarStructure;
+    
+    
+    document.addEventListener('click', function(event) {
+        
+        if (navLinks && 
+            navLinks.classList.contains('active') && 
+            !navLinks.contains(event.target) && 
+            !event.target.classList.contains('menu-toggle') &&
+            !event.target.closest('.menu-toggle')) {
+            closeSidebar();
+        }
+    });
+    
+    
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && navLinks && navLinks.classList.contains('active')) {
+            closeSidebar();
+        }
+    });
+
+    
+    initializeApp();
+});
+
+
 window.addEventListener('resize', handleResize);
 
-/**
- * Initialize the application
- */
+
 function initializeApp() {
     console.log('Initializing KKNotes application...');
     
-    // Set up navigation scroll effect
+    
     window.addEventListener('scroll', handleNavScroll);
     
-    // Add smooth scrolling to anchor links
+    
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function(e) {
             if (this.getAttribute('href') !== '#') {
@@ -40,7 +297,7 @@ function initializeApp() {
                         behavior: 'smooth'
                     });
                     
-                    // Close mobile menu if open
+                    
                     if (navLinks && navLinks.classList.contains('active')) {
                         navLinks.classList.remove('active');
                     }
@@ -49,18 +306,18 @@ function initializeApp() {
         });
     });
     
-    // Initialize animations
+    
     initializeAnimations();
     
-    // Check if admin link should be visible based on auth state
+    
     updateAdminLinkVisibility();
     
-    // Update admin link visibility when auth state changes
+    
     firebase.auth().onAuthStateChanged(() => {
         updateAdminLinkVisibility();
     });
     
-    // Add direct event listener for login button
+    
     const loginBtn = document.getElementById('login-btn');
     if (loginBtn) {
         loginBtn.addEventListener('click', function(e) {
@@ -69,14 +326,14 @@ function initializeApp() {
             
             const authOverlay = document.getElementById('auth-overlay');
             if (authOverlay) {
-                // Force display the auth overlay
+                
                 authOverlay.style.display = 'flex';
                 authOverlay.style.opacity = '1';
                 authOverlay.style.visibility = 'visible';
                 authOverlay.classList.add('active');
                 document.body.classList.add('no-scroll');
                 
-                // Reset the Google auth button
+                
                 const siteAuthBtn = document.getElementById('site-auth-btn');
                 if (siteAuthBtn) {
                     siteAuthBtn.innerHTML = '<i class="fab fa-google"></i> Sign in with Google';
@@ -86,46 +343,59 @@ function initializeApp() {
         });
     }
     
-    // Initialize mobile-specific behavior
+    
     if (isMobile) {
         initMobileBehavior();
     }
     
-    // Check for system dark mode preference
+    
     checkSystemDarkModePreference();
 }
 
-/**
- * Check system preference for dark mode and apply if needed
- */
+
 function checkSystemDarkModePreference() {
-    const savedPreference = localStorage.getItem('darkMode');
+    console.log('Checking system dark mode preference from main.js');
     
-    // If user has a saved preference, use that
-    if (savedPreference !== null) {
-        if (savedPreference === 'true') {
+    
+    if (window.KKTheme) {
+        console.log('KKTheme is available, skipping theme check in main.js');
+        return;
+    }
+    
+    const savedTheme = localStorage.getItem('theme');
+    
+    
+    if (savedTheme) {
+        console.log('Using saved theme preference:', savedTheme);
+        if (savedTheme === 'dark') {
             document.body.classList.add('dark-mode');
             document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+            document.body.classList.remove('dark-mode');
+            document.documentElement.setAttribute('data-theme', 'light');
         }
         return;
     }
     
-    // Otherwise check system preference
+    
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        console.log('System prefers dark mode, applying dark theme');
         document.body.classList.add('dark-mode');
         document.documentElement.setAttribute('data-theme', 'dark');
-        localStorage.setItem('darkMode', 'true');
+        
+    } else {
+        console.log('System prefers light mode or no preference detected');
+        document.body.classList.remove('dark-mode');
+        document.documentElement.setAttribute('data-theme', 'light');
     }
 }
 
-/**
- * Handle window resize events to adapt to different screen sizes
- */
+
 function handleResize() {
     const wasItMobile = isMobile;
     isMobile = window.innerWidth <= 768;
     
-    // Only run if mobile state has changed
+    
     if (wasItMobile !== isMobile) {
         if (isMobile) {
             initMobileBehavior();
@@ -135,119 +405,74 @@ function handleResize() {
     }
 }
 
-/**
- * Initialize mobile-specific behavior
- */
+
 function initMobileBehavior() {
     console.log('Initializing mobile behavior');
     
-    // Add swipe detection for mobile navigation
-    const body = document.body;
     
-    let touchStartX = 0;
-    let touchEndX = 0;
-    
-    body.addEventListener('touchstart', function(e) {
-        touchStartX = e.changedTouches[0].screenX;
-    }, { passive: true });
-    
-    body.addEventListener('touchend', function(e) {
-        touchEndX = e.changedTouches[0].screenX;
-        handleSwipe();
-    }, { passive: true });
-    
-    function handleSwipe() {
-        const swipeThreshold = 100; // minimum distance for swipe
+    if (menuToggle) {
         
-        // Right to left swipe (open menu)
-        if (touchEndX < touchStartX - swipeThreshold) {
-            if (navLinks && !navLinks.classList.contains('active')) {
-                navLinks.classList.add('active');
+        const openSidebarHandler = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log("Menu toggle clicked from mobile behavior");
+            
+            
+            if (typeof window.openSidebar === 'function') {
+                window.openSidebar();
+            } else {
+                console.error("openSidebar function not available - falling back to class toggle");
+                
+                if (navLinks) {
+                    navLinks.classList.add('active');
+                    document.body.classList.add('menu-open');
+                }
             }
-        }
+        };
         
-        // Left to right swipe (close menu)
-        if (touchEndX > touchStartX + swipeThreshold) {
-            if (navLinks && navLinks.classList.contains('active')) {
-                navLinks.classList.remove('active');
-            }
-        }
+        
+        menuToggle.removeEventListener('click', openSidebarHandler);
+        menuToggle.addEventListener('click', openSidebarHandler);
+    } else {
+        console.error("Menu toggle button not found in initMobileBehavior");
     }
     
-    // Make semester tabs and subject lists scrollable with touch
+    
     const scrollableElements = document.querySelectorAll('.semester-tabs, .subjects-list');
     scrollableElements.forEach(element => {
-        // Add visual indication for scrollable areas
-        element.classList.add('mobile-scrollable');
-        
-        // Add scroll indicators if not already present
-        if (!element.querySelector('.scroll-indicator')) {
-            const leftIndicator = document.createElement('div');
-            leftIndicator.className = 'scroll-indicator left hidden';
-            leftIndicator.innerHTML = '<i class="fas fa-chevron-left"></i>';
-            
-            const rightIndicator = document.createElement('div');
-            rightIndicator.className = 'scroll-indicator right';
-            rightIndicator.innerHTML = '<i class="fas fa-chevron-right"></i>';
-            
-            element.appendChild(leftIndicator);
-            element.appendChild(rightIndicator);
-            
-            // Handle scroll indicators visibility
-            element.addEventListener('scroll', updateScrollIndicators);
-            
-            // Initial indicator state
-            updateScrollIndicators.call(element);
+        if (!element.classList.contains('mobile-scrollable')) {
+            element.classList.add('mobile-scrollable');
         }
     });
     
-    function updateScrollIndicators() {
-        const leftIndicator = this.querySelector('.scroll-indicator.left');
-        const rightIndicator = this.querySelector('.scroll-indicator.right');
-        
-        if (leftIndicator && rightIndicator) {
-            // Show/hide left indicator based on scroll position
-            if (this.scrollLeft > 20) {
-                leftIndicator.classList.remove('hidden');
-            } else {
-                leftIndicator.classList.add('hidden');
-            }
-            
-            // Show/hide right indicator based on whether there's more content to scroll
-            if (this.scrollLeft + this.clientWidth >= this.scrollWidth - 20) {
-                rightIndicator.classList.add('hidden');
-            } else {
-                rightIndicator.classList.remove('hidden');
-            }
-        }
+    
+    const navActions = document.querySelector('.nav-actions');
+    if (navActions) {
+        navActions.classList.add('mobile-spaced');
     }
 }
 
-/**
- * Reset mobile behavior when switching to desktop
- */
+
 function resetMobileBehavior() {
     console.log('Resetting mobile behavior');
     
-    // Remove mobile-specific classes
+    
     const mobileElements = document.querySelectorAll('.mobile-scrollable');
     mobileElements.forEach(element => {
         element.classList.remove('mobile-scrollable');
         
-        // Remove scroll indicators
+        
         const indicators = element.querySelectorAll('.scroll-indicator');
         indicators.forEach(indicator => indicator.remove());
     });
 }
 
-/**
- * Update the admin link visibility based on user's admin status
- */
+
 function updateAdminLinkVisibility() {
     const adminLink = document.querySelector('.admin-link');
     if (!adminLink) return;
     
-    // Check if authState is available from auth.js
+    
     if (window.authState) {
         if (window.authState.isAdmin()) {
             adminLink.classList.remove('hidden');
@@ -255,14 +480,12 @@ function updateAdminLinkVisibility() {
             adminLink.classList.add('hidden');
         }
     } else {
-        // If authState is not available, hide the admin link by default
+        
         adminLink.classList.add('hidden');
     }
 }
 
-/**
- * Handle navigation scroll effect
- */
+
 function handleNavScroll() {
     const header = document.querySelector('header');
     if (!header) return;
@@ -274,32 +497,21 @@ function handleNavScroll() {
     }
 }
 
-/**
- * Toggle the mobile menu
- */
-function toggleMenu() {
-    if (navLinks) {
-        navLinks.classList.toggle('active');
-    }
-}
 
-/**
- * Initialize animations for page elements
- */
 function initializeAnimations() {
-    // Animate hero section elements
+    
     const heroContent = document.querySelector('.hero-content');
     if (heroContent) {
         heroContent.classList.add('fade-in');
     }
     
-    // Animate floating emojis
+    
     const floatingEmojis = document.querySelectorAll('.floating-emoji');
     floatingEmojis.forEach((emoji, index) => {
         emoji.style.animationDelay = `${index * 0.2}s`;
     });
     
-    // Add scroll-triggered animations
+    
     const animatedElements = document.querySelectorAll('.animate-on-scroll');
     
     const observer = new IntersectionObserver((entries) => {
@@ -318,35 +530,7 @@ function initializeAnimations() {
     });
 }
 
-/**
- * Toggle theme between light and dark mode
- */
-function toggleTheme() {
-    document.body.classList.toggle('dark-mode');
-    
-    // Toggle data-theme attribute for CSS variables
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', newTheme);
-    
-    // Add animation to theme toggle button
-    if (mainThemeToggle) {
-        mainThemeToggle.classList.add('rotate');
-        setTimeout(() => {
-            mainThemeToggle.classList.remove('rotate');
-        }, 500);
-    }
-    
-    // Save preference to localStorage
-    const isDarkMode = document.body.classList.contains('dark-mode');
-    localStorage.setItem('darkMode', isDarkMode);
-}
 
-/**
- * Get formatted date string
- * @param {number} timestamp - Unix timestamp
- * @returns {string} - Formatted date string
- */
 function formatDate(timestamp) {
     const date = new Date(timestamp);
     return date.toLocaleDateString('en-US', {
@@ -356,17 +540,13 @@ function formatDate(timestamp) {
     });
 }
 
-/**
- * Handle errors with a user-friendly toast
- * @param {Error} error - The error object
- * @param {string} fallbackMessage - Fallback message if error doesn't have one
- */
+
 function handleError(error, fallbackMessage = 'An error occurred') {
     console.error('Error:', error);
     
     const message = error.message || fallbackMessage;
     
-    // Create toast element
+    
     const toast = document.createElement('div');
     toast.className = 'toast error-toast';
     toast.innerHTML = `
@@ -381,15 +561,15 @@ function handleError(error, fallbackMessage = 'An error occurred') {
         </div>
     `;
     
-    // Add to document
+    
     document.body.appendChild(toast);
     
-    // Show toast
+    
     setTimeout(() => {
         toast.classList.add('show');
     }, 100);
     
-    // Add event listener to close button
+    
     const closeBtn = toast.querySelector('.close-toast');
     if (closeBtn) {
         closeBtn.addEventListener('click', () => {
@@ -400,7 +580,7 @@ function handleError(error, fallbackMessage = 'An error occurred') {
         });
     }
     
-    // Auto-remove after 5 seconds
+    
     setTimeout(() => {
         if (document.body.contains(toast)) {
             toast.classList.remove('show');
@@ -413,21 +593,19 @@ function handleError(error, fallbackMessage = 'An error occurred') {
     }, 5000);
 }
 
-/**
- * Helper function to add content-loaded animation class after loading
- * @param {HTMLElement} container - The container element with loaded content
- */
+
 function applyContentLoadedAnimation(container) {
     if (!container) return;
     
-    // Find all child elements that should animate
+    
     const contentElements = container.querySelectorAll('.subjects-container, .notes-list, .videos-list, .notes-grid, .videos-grid');
     
-    // Apply the animation class
+    
     contentElements.forEach(element => {
         element.classList.add('content-loaded');
     });
 }
 
-// Add the function to the window object so it can be accessed from other modules
+
 window.applyContentLoadedAnimation = applyContentLoadedAnimation;
+

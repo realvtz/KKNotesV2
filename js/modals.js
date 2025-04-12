@@ -1,9 +1,6 @@
-/**
- * Modal and Form Handling
- * Manages all modal dialogs and form interactions
- */
 
-// Show add content modal
+
+
 function showAddContentModal(contentType) {
     const modal = createModal({
         title: `Add ${contentType.charAt(0).toUpperCase() + contentType.slice(1)}`,
@@ -15,7 +12,7 @@ function showAddContentModal(contentType) {
     initializeFormSelectors(contentType);
 }
 
-// Show edit content modal
+
 function showEditContentModal(contentType, itemData) {
     const modal = createModal({
         title: `Edit ${contentType.charAt(0).toUpperCase() + contentType.slice(1)}`,
@@ -27,7 +24,7 @@ function showEditContentModal(contentType, itemData) {
     initializeFormSelectors(contentType, itemData);
 }
 
-// Show delete confirmation modal
+
 function showDeleteConfirmModal(contentType, itemData, onConfirm) {
     const modal = createModal({
         title: 'Confirm Delete',
@@ -61,7 +58,7 @@ function showDeleteConfirmModal(contentType, itemData, onConfirm) {
     document.body.appendChild(modal);
 }
 
-// Create modal element
+
 function createModal({ title, content, onSubmit, buttons }) {
     const modal = document.createElement('div');
     modal.className = 'modal-backdrop';
@@ -69,7 +66,7 @@ function createModal({ title, content, onSubmit, buttons }) {
     const modalContent = document.createElement('div');
     modalContent.className = 'modal';
     
-    // Modal header
+    
     const header = document.createElement('div');
     header.className = 'modal-header';
     header.innerHTML = `
@@ -77,7 +74,7 @@ function createModal({ title, content, onSubmit, buttons }) {
         <button class="close-modal" aria-label="Close modal">×</button>
     `;
     
-    // Modal body
+    
     const body = document.createElement('div');
     body.className = 'modal-body';
     
@@ -87,7 +84,7 @@ function createModal({ title, content, onSubmit, buttons }) {
         body.appendChild(content);
     }
     
-    // Modal footer
+    
     const footer = document.createElement('div');
     footer.className = 'modal-footer';
     
@@ -106,13 +103,13 @@ function createModal({ title, content, onSubmit, buttons }) {
         `;
     }
     
-    // Assemble modal
+    
     modalContent.appendChild(header);
     modalContent.appendChild(body);
     modalContent.appendChild(footer);
     modal.appendChild(modalContent);
     
-    // Event listeners
+    
     modal.querySelector('.close-modal').addEventListener('click', () => modal.remove());
     modal.addEventListener('click', (e) => {
         if (e.target === modal) modal.remove();
@@ -145,7 +142,7 @@ function createModal({ title, content, onSubmit, buttons }) {
     return modal;
 }
 
-// Get add content form
+
 function getAddContentForm(contentType) {
     const form = document.createElement('form');
     form.className = 'add-content-form';
@@ -234,11 +231,11 @@ function getAddContentForm(contentType) {
     return form;
 }
 
-// Get edit content form
+
 function getEditContentForm(contentType, itemData) {
     const form = getAddContentForm(contentType);
     
-    // Populate form with existing data
+    
     Object.entries(itemData).forEach(([key, value]) => {
         const input = form.querySelector(`[name="${key}"]`);
         if (input) {
@@ -249,7 +246,7 @@ function getEditContentForm(contentType, itemData) {
     return form;
 }
 
-// Initialize form selectors
+
 async function initializeFormSelectors(contentType, itemData = null) {
     const form = document.querySelector('.add-content-form, .edit-content-form');
     if (!form) return;
@@ -257,7 +254,7 @@ async function initializeFormSelectors(contentType, itemData = null) {
     const semesterSelect = form.querySelector('#semester');
     const subjectSelect = form.querySelector('#subject');
     
-    // Populate semester selector
+    
     if (semesterSelect) {
         for (let i = 1; i <= 8; i++) {
             const option = document.createElement('option');
@@ -271,7 +268,7 @@ async function initializeFormSelectors(contentType, itemData = null) {
         }
     }
     
-    // Set up subject selector
+    
     if (semesterSelect && subjectSelect) {
         semesterSelect.addEventListener('change', () => {
             window.adminCore.loadSubjectsForSemester(semesterSelect.value, subjectSelect);
@@ -286,7 +283,7 @@ async function initializeFormSelectors(contentType, itemData = null) {
     }
 }
 
-// Handle form submission
+
 async function handleAddContent(contentType, formData) {
     try {
         switch (contentType) {
@@ -314,7 +311,7 @@ async function handleAddContent(contentType, formData) {
                 break;
         }
         
-        // Reload content panel
+        
         const activePanel = document.querySelector('.tab-panel.active');
         if (activePanel) {
             window.contentManagement.loadContentPanel(activePanel.id);
@@ -325,7 +322,7 @@ async function handleAddContent(contentType, formData) {
     }
 }
 
-// Handle edit content
+
 async function handleEditContent(contentType, itemId, formData) {
     try {
         switch (contentType) {
@@ -353,7 +350,7 @@ async function handleEditContent(contentType, itemId, formData) {
                 break;
         }
         
-        // Reload content panel
+        
         const activePanel = document.querySelector('.tab-panel.active');
         if (activePanel) {
             window.contentManagement.loadContentPanel(activePanel.id);
@@ -364,9 +361,11 @@ async function handleEditContent(contentType, itemId, formData) {
     }
 }
 
-// Export necessary functions
+
 window.modals = {
     showAddContentModal,
     showEditContentModal,
     showDeleteConfirmModal
 }; 
+
+

@@ -1,9 +1,6 @@
-/**
- * Content Management Module
- * Handles all content-related functionality including semesters, subjects, notes, and videos
- */
 
-// Load dashboard data
+
+
 async function loadDashboardData() {
     try {
         await Promise.all([
@@ -17,23 +14,23 @@ async function loadDashboardData() {
     }
 }
 
-// Load total counts
+
 async function loadTotalCounts() {
     try {
-        // Load users count
+        
         const usersSnapshot = await database.ref('users').once('value');
         const usersCount = Object.keys(usersSnapshot.val() || {}).length;
         document.getElementById('total-users-count').textContent = usersCount;
         
-        // Load notes count
+        
         const notesCount = await countAllContent('notes');
         document.getElementById('total-notes-count').textContent = notesCount;
         
-        // Load videos count
+        
         const videosCount = await countAllContent('videos');
         document.getElementById('total-videos-count').textContent = videosCount;
         
-        // Load reports count
+        
         const reportsSnapshot = await database.ref('reports').once('value');
         const reportsCount = Object.keys(reportsSnapshot.val() || {}).length;
         document.getElementById('total-reports-count').textContent = reportsCount;
@@ -43,14 +40,14 @@ async function loadTotalCounts() {
     }
 }
 
-// Count all content of a specific type
+
 async function countAllContent(contentType) {
     try {
         const snapshot = await database.ref(contentType).once('value');
         const content = snapshot.val() || {};
         let count = 0;
         
-        // Count items across all semesters and subjects
+        
         Object.values(content).forEach(semester => {
             Object.values(semester).forEach(subject => {
                 count += Object.keys(subject).length;
@@ -64,7 +61,7 @@ async function countAllContent(contentType) {
     }
 }
 
-// Load recent activity
+
 async function loadRecentActivity() {
     try {
         const snapshot = await database.ref('activity')
@@ -86,7 +83,7 @@ async function loadRecentActivity() {
     }
 }
 
-// Load activity chart
+
 async function loadActivityChart() {
     try {
         const ctx = document.getElementById('activity-chart');
@@ -146,7 +143,7 @@ async function loadActivityChart() {
     }
 }
 
-// Load content panel
+
 async function loadContentPanel(panelId) {
     const panel = document.getElementById(`${panelId}-panel`);
     if (!panel) return;
@@ -175,7 +172,7 @@ async function loadContentPanel(panelId) {
     }
 }
 
-// Load semesters data
+
 async function loadSemestersData(tableBody) {
     try {
         const snapshot = await database.ref('subjects').once('value');
@@ -220,7 +217,7 @@ async function loadSemestersData(tableBody) {
     }
 }
 
-// Load subjects data
+
 async function loadSubjectsData(tableBody) {
     try {
         const semester = document.getElementById('semesterSelect').value;
@@ -272,7 +269,7 @@ async function loadSubjectsData(tableBody) {
     }
 }
 
-// Load notes data
+
 async function loadNotesData(tableBody) {
     try {
         const semester = document.getElementById('notesSemesterSelect').value;
@@ -330,7 +327,7 @@ async function loadNotesData(tableBody) {
     }
 }
 
-// Load videos data
+
 async function loadVideosData(tableBody) {
     try {
         const semester = document.getElementById('videosSemesterSelect').value;
@@ -393,21 +390,21 @@ async function loadVideosData(tableBody) {
     }
 }
 
-// Add content
+
 async function addContent(contentType, data) {
     try {
         const { semester, subject } = data;
         delete data.semester;
         delete data.subject;
         
-        // Add metadata
+        
         data.addedBy = firebase.auth().currentUser.email;
         data.addedAt = firebase.database.ServerValue.TIMESTAMP;
         
-        // Generate ID
+        
         const newRef = database.ref(`${contentType}/${semester}/${subject}`).push();
         
-        // If it's a video, extract video ID and generate thumbnail
+        
         if (contentType === 'videos') {
             const videoId = extractYouTubeVideoId(data.link);
             if (videoId) {
@@ -416,10 +413,10 @@ async function addContent(contentType, data) {
             }
         }
         
-        // Save content
+        
         await newRef.set(data);
         
-        // Log activity
+        
         await logActivity(`${contentType.slice(0, -1)}_added`, {
             semester,
             subject,
@@ -434,13 +431,13 @@ async function addContent(contentType, data) {
     }
 }
 
-// Edit content
+
 async function editContent(contentType, semester, subject, id, data) {
     try {
-        // Update content
+        
         await database.ref(`${contentType}/${semester}/${subject}/${id}`).update(data);
         
-        // Log activity
+        
         await logActivity(`${contentType.slice(0, -1)}_edited`, {
             semester,
             subject,
@@ -455,17 +452,17 @@ async function editContent(contentType, semester, subject, id, data) {
     }
 }
 
-// Delete content
+
 async function deleteContent(contentType, semester, subject, id) {
     try {
-        // Get content data for activity log
+        
         const snapshot = await database.ref(`${contentType}/${semester}/${subject}/${id}`).once('value');
         const contentData = snapshot.val();
         
-        // Delete content
+        
         await database.ref(`${contentType}/${semester}/${subject}/${id}`).remove();
         
-        // Log activity
+        
         await logActivity(`${contentType.slice(0, -1)}_deleted`, {
             semester,
             subject,
@@ -480,7 +477,7 @@ async function deleteContent(contentType, semester, subject, id) {
     }
 }
 
-// Utility functions
+
 function formatLink(url) {
     try {
         const urlObj = new URL(url);
@@ -566,7 +563,7 @@ async function countSubjectContent(semester, subject) {
     }
 }
 
-// Export necessary functions
+
 window.contentManagement = {
     loadDashboardData,
     loadContentPanel,
@@ -598,3 +595,5 @@ window.contentManagement = {
             () => deleteContent('videos', semester, subject, id));
     }
 }; 
+
+

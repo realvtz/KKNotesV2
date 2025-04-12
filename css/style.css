@@ -1,6 +1,6 @@
-/* ===== Base Styles ===== */
+
 :root {
-    /* Color Palette - Light Mode (Default) */
+    
     --primary-color: #4263eb;
     --primary-color-rgb: 66, 99, 235;
     --primary-dark: #364fc7;
@@ -36,14 +36,14 @@
     --card-bg-rgb: 255, 255, 255;
     --shadow-color: rgba(0, 0, 0, 0.1);
     
-    /* Light Theme Gradients */
+    
     --gradient-primary: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
     --gradient-secondary: linear-gradient(135deg, var(--secondary-color), var(--secondary-color-dark));
     --gradient-hero: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     --gradient-accent: linear-gradient(135deg, var(--primary-color), var(--accent-color));
     --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.3));
 
-    /* Spacing */
+    
     --spacing-xs: 0.25rem;
     --spacing-sm: 0.5rem;
     --spacing-md: 1rem;
@@ -51,7 +51,7 @@
     --spacing-xl: 2rem;
     --spacing-xxl: 3rem;
     
-    /* Typography */
+    
     --font-family-primary: 'Poppins', sans-serif;
     --font-family-secondary: 'Montserrat', sans-serif;
     --font-size-xs: 0.75rem;
@@ -62,26 +62,65 @@
     --font-size-xxl: 2rem;
     --font-size-hero: 3rem;
     
-    /* Border Radius */
+    
     --border-radius-sm: 0.25rem;
     --border-radius-md: 0.5rem;
     --border-radius-lg: 1rem;
     --border-radius-pill: 500px;
     --border-radius-circle: 50%;
     
-    /* Box Shadow */
+    
     --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
     
-    /* Transitions */
+    
     --transition-fast: 0.2s ease;
     --transition-normal: 0.3s ease;
     --transition-slow: 0.5s ease;
     --transition-bounce: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* Reset & Base Styles */
+
+[data-theme="dark"] {
+    --primary-color: #5c7cfa;
+    --primary-color-rgb: 92, 124, 250;
+    --primary-dark: #4c6ef5;
+    --primary-dark-rgb: 76, 110, 245;
+    --primary-light: #91a7ff;
+    --primary-light-rgb: 145, 167, 255;
+    --secondary-color: #22d3ee;
+    --secondary-color-rgb: 34, 211, 238;
+    --secondary-color-dark: #0cb7e0;
+    --secondary-color-dark-rgb: 12, 183, 224;
+    --accent-color: #c27bdb;
+    --accent-color-rgb: 194, 123, 219;
+    --text-color: #e2e8f0;
+    --text-light: #cbd5e1;
+    --text-lighter: #94a3b8;
+    --bg-color: #121212;
+    --bg-color-rgb: 18, 18, 18;
+    --bg-light: #1e1e1e;
+    --bg-light-rgb: 30, 30, 30;
+    --bg-dark: #2d2d2d;
+    --bg-dark-rgb: 45, 45, 45;
+    --border-color: #2d3748;
+    --border-color-rgb: 45, 55, 72;
+    --chat-bg: #1e1e1e;
+    --chat-bg-rgb: 30, 30, 30;
+    --card-bg: #1e1e1e;
+    --card-bg-rgb: 30, 30, 30;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    
+    
+    --gradient-primary: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    --gradient-secondary: linear-gradient(135deg, var(--secondary-color), var(--secondary-color-dark));
+    --gradient-hero: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    --gradient-accent: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    --gradient-glass: linear-gradient(135deg, rgba(30, 30, 30, 0.7), rgba(30, 30, 30, 0.3));
+}
+
+
 * {
     margin: 0;
     padding: 0;
@@ -152,18 +191,18 @@ p {
     display: none !important;
 }
 
-/* ===== Layout & Components ===== */
 
-/* Header & Navigation */
+
+
 header {
     background-color: rgba(var(--bg-color-rgb, 255, 255, 255), 0.85);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     box-shadow: var(--shadow-md);
     position: sticky;
     top: 0;
     z-index: 100;
-    border-bottom: 1px solid rgba(var(--border-color-rgb, 222, 226, 230), 0.3);
+    border-bottom: 1px solid rgba(var(--border-color-rgb), 0.3);
     transition: all var(--transition-normal);
 }
 
@@ -275,7 +314,7 @@ nav {
 .nav-actions {
     display: flex;
     align-items: center;
-    gap: var(--spacing-md);
+    gap: 20px;
 }
 
 .theme-toggle {
@@ -314,18 +353,106 @@ nav {
     }
 }
 
+
 .menu-toggle {
-    display: none;
-    font-size: var(--font-size-lg);
-    cursor: pointer;
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
 }
 
-/* Main Content */
+
+.nav-links {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    height: 100vh;
+    width: 300px;
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    padding: 50px 30px;
+    transition: 0.3s ease;
+    z-index: 1000;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+.nav-links.active {
+    right: 0;
+    background-color: #ffffff;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+
+body, html, main, header, footer, div, section, aside {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    filter: none !important;
+}
+
+
+.close-icon {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #333;
+    z-index: 1010;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: #f5f5f5;
+}
+
+.close-icon:hover,
+.close-icon:focus {
+    background-color: #e0e0e0;
+    color: #000;
+}
+
+
+body.menu-open {
+    overflow: hidden;
+}
+
+
+@media screen and (max-width: 768px) {
+    body.menu-open::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+    
+    .nav-links.active {
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .nav-links {
+        width: 80%;
+    }
+}
+
+
 main {
     min-height: calc(100vh - 160px);
 }
 
-/* Hero Section */
+
 .hero {
     display: flex;
     align-items: center;
@@ -414,7 +541,7 @@ main {
     }
 }
 
-/* Buttons */
+
 .btn {
     display: inline-flex;
     align-items: center;
@@ -516,7 +643,7 @@ main {
     transform: translateY(-2px);
 }
 
-/* Section Styles */
+
 section {
     padding: var(--spacing-xxl) var(--spacing-lg);
     max-width: 1200px;
@@ -539,7 +666,7 @@ section h2 {
     margin-right: auto;
 }
 
-/* Notes and Videos Sections */
+
 .notes-section,
 .videos-section {
     background: linear-gradient(135deg, 
@@ -803,7 +930,7 @@ section h2 {
     gap: var(--spacing-lg);
 }
 
-/* Video card styles */
+
 .videos-list {
     padding: var(--spacing-md) 0;
 }
@@ -1113,7 +1240,7 @@ section h2 {
     color: var(--text-light);
 }
 
-/* About Section */
+
 .about-section {
     position: relative;
     background: linear-gradient(135deg, 
@@ -1266,7 +1393,7 @@ section h2 {
     box-shadow: var(--shadow-lg);
 }
 
-/* Footer */
+
 footer {
     background: linear-gradient(to top, 
         rgba(var(--bg-dark-rgb), 1),
@@ -1376,8 +1503,8 @@ footer::after {
     font-size: var(--font-size-sm);
 }
 
-/* Responsive Styles */
-/* Login Overlay Styles */
+
+
 .login-overlay {
     position: fixed;
     top: 0;
@@ -1494,7 +1621,7 @@ footer::after {
     color: var(--text-lighter);
 }
 
-/* ===== Chat Styles ===== */
+
 .chat-section {
     background: linear-gradient(135deg, 
         rgba(var(--secondary-color-rgb), 0.05),
@@ -1630,7 +1757,7 @@ footer::after {
     color: var(--text-light);
 }
 
-/* Role highlighting */
+
 .chat-username.admin-user {
     color: var(--primary-color);
     position: relative;
@@ -1842,7 +1969,7 @@ footer::after {
     color: var(--text-lighter);
 }
 
-/* Animation Keyframes */
+
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -1927,7 +2054,7 @@ footer::after {
     }
 }
 
-/* Animation Classes */
+
 .fade-in {
     animation: fadeIn 0.5s ease forwards;
 }
@@ -1951,3 +2078,14 @@ footer::after {
 .shake-animation {
     animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
 }
+
+
+@media (max-width: 768px) {
+    
+    nav {
+        padding: 0;
+    }
+}
+
+
+

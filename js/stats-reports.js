@@ -1,24 +1,21 @@
-/**
- * Statistics and Reports Module
- * Handles all statistics, analytics, and report management functionality
- */
 
-// Statistics Functions
+
+
 async function loadStatistics() {
     try {
-        // Load user statistics
+        
         const userStats = await getUserStatistics();
         updateUserStatsUI(userStats);
         
-        // Load content statistics
+        
         const contentStats = await getContentStatistics();
         updateContentStatsUI(contentStats);
         
-        // Load activity statistics
+        
         const activityStats = await getActivityStatistics();
         updateActivityCharts(activityStats);
         
-        // Load platform statistics
+        
         const platformStats = await getPlatformStatistics();
         updatePlatformStatsUI(platformStats);
     } catch (error) {
@@ -64,7 +61,7 @@ async function getContentStatistics() {
         contentBySubject: {}
     };
     
-    // Count notes
+    
     const notesSnapshot = await database.ref('notes').once('value');
     const notes = notesSnapshot.val() || {};
     Object.values(notes).forEach(semester => {
@@ -78,7 +75,7 @@ async function getContentStatistics() {
         });
     });
     
-    // Count videos
+    
     const videosSnapshot = await database.ref('videos').once('value');
     const videos = videosSnapshot.val() || {};
     Object.values(videos).forEach(semester => {
@@ -102,10 +99,10 @@ async function getActivityStatistics() {
         userEngagement: []
     };
     
-    // Get last 30 days of activity
+    
     const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
     
-    // Get user activity
+    
     const activitySnapshot = await database.ref('activity')
         .orderByChild('timestamp')
         .startAt(thirtyDaysAgo)
@@ -113,7 +110,7 @@ async function getActivityStatistics() {
     
     const activity = activitySnapshot.val() || {};
     
-    // Process activity data
+    
     Object.values(activity).forEach(action => {
         const date = new Date(action.timestamp).toLocaleDateString();
         
@@ -135,7 +132,7 @@ async function getActivityStatistics() {
         stats.userEngagement[date]++;
     });
     
-    // Convert Sets to counts
+    
     stats.dailyActiveUsers = Object.entries(stats.dailyActiveUsers).map(([date, users]) => ({
         date,
         count: users.size
@@ -153,7 +150,7 @@ async function getPlatformStatistics() {
     };
 }
 
-// Reports Functions
+
 async function loadReports(tableBody) {
     try {
         const snapshot = await database.ref('reports').once('value');
@@ -233,7 +230,7 @@ async function deleteReport(reportId) {
     }
 }
 
-// UI Update Functions
+
 function updateUserStatsUI(stats) {
     document.getElementById('total-users').textContent = stats.totalUsers;
     document.getElementById('active-users').textContent = stats.activeUsers;
@@ -246,7 +243,7 @@ function updateContentStatsUI(stats) {
     document.getElementById('total-videos').textContent = stats.totalVideos;
     document.getElementById('total-resources').textContent = stats.totalResources;
     
-    // Update content by subject chart
+    
     const ctx = document.getElementById('content-by-subject-chart').getContext('2d');
     new Chart(ctx, {
         type: 'bar',
@@ -277,7 +274,7 @@ function updateContentStatsUI(stats) {
 }
 
 function updateActivityCharts(stats) {
-    // Daily Active Users Chart
+    
     const dauCtx = document.getElementById('daily-active-users-chart').getContext('2d');
     new Chart(dauCtx, {
         type: 'line',
@@ -300,7 +297,7 @@ function updateActivityCharts(stats) {
         }
     });
     
-    // Content Uploads Chart
+    
     const uploadsCtx = document.getElementById('content-uploads-chart').getContext('2d');
     new Chart(uploadsCtx, {
         type: 'bar',
@@ -334,7 +331,7 @@ function updatePlatformStatsUI(stats) {
         .join('');
 }
 
-// Utility Functions
+
 function getReportStatusBadge(status) {
     switch (status) {
         case 'pending':
@@ -382,10 +379,12 @@ function formatBytes(bytes) {
     return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
 }
 
-// Export functions
+
 window.statsReports = {
     loadStatistics,
     loadReports,
     updateReportStatus,
     deleteReport
 }; 
+
+
