@@ -1,4 +1,3 @@
-
 (function() {
     'use strict';
     
@@ -14,6 +13,44 @@
     
     var isChatAdmin = false;
     var isChatSuperAdmin = false;
+
+    // Profanity filter - list of banned words
+    var bannedWords = [
+        'fuck', 'shit', 'ass', 'bitch', 'damn', 'cunt', 'dick', 'asshole', 'bastard',
+        'whore', 'slut', 'piss', 'pussy', 'cock', 'tits', 'wanker', 'twat',
+        // Manglish (Malayalam typed in English) profanity
+        'myru', 'myir', 'maire', 'poorr', 'poori', 'kundi', 'kunna', 'kooth', 'kooth',
+        'thayoli', 'thaayoli', 'thayolli', 'pundachi', 'pundachimone', 'poorimone',
+        'poorimonae', 'parayipetta', 'veshi', 'vesi', 'thendi', 'patti', 'andi',
+        'oombiya', 'oombikko', 'poda', 'pooda', 'thevidiya', 'thevidya'
+    ];
+    
+    // Function to check if message contains profanity
+    function containsProfanity(text) {
+        const lowerText = text.toLowerCase();
+        
+        // Check for exact matches and word boundaries
+        for (const word of bannedWords) {
+            const regex = new RegExp('\\b' + word + '\\b', 'i');
+            if (regex.test(lowerText)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    // Function to censor profanity in a message
+    function censorProfanity(text) {
+        let censoredText = text;
+        
+        // Replace each banned word with asterisks
+        for (const word of bannedWords) {
+            const regex = new RegExp('\\b' + word + '\\b', 'gi');
+            censoredText = censoredText.replace(regex, '*'.repeat(word.length));
+        }
+        
+        return censoredText;
+    }
 
     
     if (document.readyState === 'loading') {
@@ -385,29 +422,78 @@
         const messageText = chatInput.value.trim();
         if (!messageText) return;
         
-        
+        // Clear the input field
         chatInput.value = '';
         
+        // Check for /clear command
+        if (messageText.toLowerCase() === '/clear') {
+            // Check if user has admin privileges
+            if (isChatAdmin || isChatSuperAdmin) {
+                // Clear all chat messages
+                database.ref('chat').remove()
+                    .then(function() {
+                        console.log('Chat messages cleared successfully');
+                        // Add a system message indicating the chat was cleared
+                        const user = firebase.auth().currentUser;
+                        const systemMessage = {
+                            userId: 'system',
+                            userName: 'System',
+                            userEmail: '',
+                            userPhoto: 'assets/avatars/system-avatar.png',
+                            text: `Chat cleared by ${user.displayName}`,
+                            timestamp: firebase.database.ServerValue.TIMESTAMP,
+                            isAdmin: true,
+                            isSuperAdmin: true
+                        };
+                        database.ref('chat').push(systemMessage);
+                    })
+                    .catch(function(error) {
+                        console.error('Error clearing chat messages:', error);
+                        alert('Failed to clear chat messages: ' + error.message);
+                    });
+            } else {
+                // Display error message for non-admin users
+                alert('Permission denied: Only admins can clear the chat.');
+            }
+            return; // Exit the function after handling the command
+        }
         
+        // If not a command, proceed with regular message sending
         const user = firebase.auth().currentUser;
         if (!user) {
             console.error('User is not authenticated');
             return;
         }
         
+        // Check for profanity
+        let finalMessageText = messageText;
         
+        if (containsProfanity(messageText)) {
+            // If user is admin or superadmin, allow with warning
+            if (isChatAdmin || isChatSuperAdmin) {
+                if (!confirm('Your message contains inappropriate language. Send anyway?')) {
+                    return; // User chose not to send
+                }
+            } else {
+                // For regular users, either block or censor the message
+                finalMessageText = censorProfanity(messageText);
+                alert('Your message contained inappropriate language and has been censored.');
+            }
+        }
+        
+        // Create message object
         const message = {
             userId: user.uid,
             userName: user.displayName || 'Anonymous',
             userEmail: user.email,
             userPhoto: user.photoURL || null,
-            text: messageText,
+            text: finalMessageText,
             timestamp: firebase.database.ServerValue.TIMESTAMP,
             isAdmin: isChatAdmin,
             isSuperAdmin: isChatSuperAdmin
         };
         
-        
+        // Send message to Firebase
         database.ref('chat').push(message)
             .then(function() {
                 console.log('Message sent successfully');
