@@ -4,6 +4,7 @@
   <h3>Your Ultimate Study Companion for KTU Computer Science</h3>
   
   <p>
+    <a href="https://christopherjoshy.github.io/KKNotesV2/" target="_blank">🌐 Visit KKNotes</a> •
     <a href="#overview">Overview</a> •
     <a href="#features">Features</a> •
     <a href="#getting-started">Getting Started</a> •
@@ -18,6 +19,7 @@
   [![PWA Ready](https://img.shields.io/badge/PWA-Ready-blue)](https://kknotes.com)
   [![Firebase](https://img.shields.io/badge/Firebase-Enabled-orange)](https://firebase.google.com)
   [![Responsive](https://img.shields.io/badge/Responsive-Yes-green)](https://kknotes.com)
+  [![Website](https://img.shields.io/badge/Website-Live-success)](https://christopherjoshy.github.io/KKNotesV2/)
 </div>
 
 ---
