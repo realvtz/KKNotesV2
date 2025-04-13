@@ -7,11 +7,24 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="format-detection" content="telephone=no">
+    <meta name="description" content="KTU Computer Science Notes and Study Materials">
+    <meta name="application-name" content="KKNotes">
+    <meta name="apple-mobile-web-app-title" content="KKNotes">
+    <meta name="msapplication-TileColor" content="#6366f1">
+    <meta name="msapplication-tap-highlight" content="no">
     <title>KKNotes - KTU Computer Science Notes</title>
+    
+    <!-- PWA -->
+    <link rel="manifest" href="./manifest.json">
+    <link rel="apple-touch-icon" href="./assets/icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="./assets/icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="./assets/icons/icon-512x512.png">
+    <link rel="mask-icon" href="./assets/logo.svg" color="#6366f1">
     
     <!-- CSS Styles -->
     <link rel="stylesheet" href="css/newstyle.css">
     <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="css/wizard-loader.css">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -99,6 +112,25 @@
         </nav>
     </header>
 
+    <!-- Install Banner -->
+    <div id="install-banner" class="install-banner" style="display: none;">
+        <div class="install-banner-content">
+            <div class="install-banner-icon">
+                <i class="fas fa-download"></i>
+            </div>
+            <div class="install-banner-text">
+                <h3>Install KKNotes</h3>
+                <p>Get a better experience with our app. Install it to your home screen for quick access.</p>
+            </div>
+            <div class="install-banner-actions">
+                <button id="install-banner-btn" class="install-banner-btn">Install</button>
+                <button id="install-banner-dismiss" class="install-banner-dismiss">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <main>
         <section id="home" class="hero">
             <div class="hero-content">
@@ -135,7 +167,36 @@
             
             <div id="notes-container" class="notes-container">
                 <div class="loading-spinner">
-                    <i class="fas fa-spinner fa-spin"></i>
+                    <div class="scene">
+                        <div class="objects">
+                            <div class="square"></div>
+                            <div class="circle"></div>
+                            <div class="triangle"></div>
+                        </div>
+                        <div class="wizard">
+                            <div class="body"></div>
+                            <div class="right-arm">
+                                <div class="right-hand"></div>
+                            </div>
+                            <div class="left-arm">
+                                <div class="left-hand"></div>
+                            </div>
+                            <div class="head">
+                                <div class="beard"></div>
+                                <div class="face">
+                                    <div class="adds"></div>
+                                </div>
+                                <div class="hat">
+                                    <div class="hat-of-the-hat"></div>
+                                    <div class="four-point-star --first"></div>
+                                    <div class="four-point-star --second"></div>
+                                    <div class="four-point-star --third"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="progress"></div>
+                    <div class="noise"></div>
                     <p>Loading notes...</p>
                 </div>
             </div>
@@ -160,7 +221,36 @@
             
             <div id="videos-container" class="videos-container">
                 <div class="loading-spinner">
-                    <i class="fas fa-spinner fa-spin"></i>
+                    <div class="scene">
+                        <div class="objects">
+                            <div class="square"></div>
+                            <div class="circle"></div>
+                            <div class="triangle"></div>
+                        </div>
+                        <div class="wizard">
+                            <div class="body"></div>
+                            <div class="right-arm">
+                                <div class="right-hand"></div>
+                            </div>
+                            <div class="left-arm">
+                                <div class="left-hand"></div>
+                            </div>
+                            <div class="head">
+                                <div class="beard"></div>
+                                <div class="face">
+                                    <div class="adds"></div>
+                                </div>
+                                <div class="hat">
+                                    <div class="hat-of-the-hat"></div>
+                                    <div class="four-point-star --first"></div>
+                                    <div class="four-point-star --second"></div>
+                                    <div class="four-point-star --third"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="progress"></div>
+                    <div class="noise"></div>
                     <p>Loading videos...</p>
                 </div>
             </div>
@@ -182,7 +272,36 @@
                 
                 <div id="chat-messages" class="chat-messages">
                     <div class="loading-spinner">
-                        <i class="fas fa-spinner fa-spin"></i>
+                        <div class="scene">
+                            <div class="objects">
+                                <div class="square"></div>
+                                <div class="circle"></div>
+                                <div class="triangle"></div>
+                            </div>
+                            <div class="wizard">
+                                <div class="body"></div>
+                                <div class="right-arm">
+                                    <div class="right-hand"></div>
+                                </div>
+                                <div class="left-arm">
+                                    <div class="left-hand"></div>
+                                </div>
+                                <div class="head">
+                                    <div class="beard"></div>
+                                    <div class="face">
+                                        <div class="adds"></div>
+                                    </div>
+                                    <div class="hat">
+                                        <div class="hat-of-the-hat"></div>
+                                        <div class="four-point-star --first"></div>
+                                        <div class="four-point-star --second"></div>
+                                        <div class="four-point-star --third"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="progress"></div>
+                        <div class="noise"></div>
                         <p>Loading chat...</p>
                     </div>
                 </div>
@@ -203,53 +322,108 @@
         </section>
         
         <section id="about" class="about-section">
-            <h2>About the Creator <span class="emoji">👨‍💻</span></h2>
+            <h2>About the Creator <span class="emoji">✨</span></h2>
             <div class="about-content">
                 <div class="about-text">
                     <h3>Christopher Joshy</h3>
-                    <p class="subtitle">Computer Science Engineering Student</p>
+                    <p class="subtitle">Aspiring Coder | Game Developer in Training | Web Design Enthusiast</p>
                     <p class="about-desc">
-                        Passionate about technology and sharing knowledge with fellow CS students.
-                        KKNotes is my contribution to help KTU students access quality study materials easily and collaborate with other students.
+                        Currently diving into C# and pursuing my B.Tech in Computer Science at St. Joseph's College of Engineering. 
+                        Passionate about creating immersive digital experiences and exploring new technologies. KKNotes is my contribution 
+                        to help fellow students access quality study materials with a modern, user-friendly interface.
                     </p>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number">19</div>
+                            <div class="stat-label">Total Stars</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">207</div>
+                            <div class="stat-label">Commits</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">1</div>
+                            <div class="stat-label">Total PRs</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">1</div>
+                            <div class="stat-label">Contributions</div>
+                        </div>
+                    </div>
+
+                    <div class="education-section">
+                        <h4 class="education-title">
+                            <i class="fas fa-graduation-cap"></i>
+                            Education
+                        </h4>
+                        <div class="education-info">
+                            <p class="degree">B.Tech in Computer Science</p>
+                            <p class="institution">St. Joseph's College of Engineering</p>
+                        </div>
+                    </div>
+
+                    <div class="languages-section">
+                        <div class="language-item">
+                            <i class="fab fa-java"></i>
+                            Java
+                        </div>
+                        <div class="language-item">
+                            <i class="fab fa-cuttlefish"></i>
+                            C#
+                        </div>
+                        <div class="language-item">
+                            <i class="fas fa-code"></i>
+                            C++
+                        </div>
+                        <div class="language-item">
+                            <i class="fab fa-python"></i>
+                            Python
+                        </div>
+                        <div class="language-item">
+                            <i class="fab fa-html5"></i>
+                            HTML5
+                        </div>
+                        <div class="language-item">
+                            <i class="fab fa-css3-alt"></i>
+                            CSS3
+                        </div>
+                        <div class="language-item">
+                            <i class="fab fa-js"></i>
+                            JavaScript
+                        </div>
+                        <div class="language-item">
+                            <i class="fas fa-gamepad"></i>
+                            Unreal Engine
+                        </div>
+                    </div>
+
                     <div class="social-links">
                         <a href="https://github.com/ChristopherJoshy" target="_blank" class="social-link">
-                            <i class="fab fa-github"></i> GitHub
+                            <i class="fab fa-github"></i>
+                            GitHub
                         </a>
                         <a href="https://www.instagram.com/calculatederror/" target="_blank" class="social-link">
-                            <i class="fab fa-instagram"></i> Instagram
+                            <i class="fab fa-instagram"></i>
+                            Instagram
+                        </a>
+                        <a href="mailto:Christopherjoshy4@gmail.com" class="social-link">
+                            <i class="fas fa-envelope"></i>
+                            Email
                         </a>
                     </div>
                 </div>
                 <div class="about-image">
-                    <div class="profile-emoji">👨‍💻</div>
+                    <div class="profile-container">
+                        <div class="profile-emoji">👨‍💻</div>
+                        <div class="skill-badge">🎮</div>
+                        <div class="skill-badge">💻</div>
+                        <div class="skill-badge">🎨</div>
+                    </div>
                 </div>
             </div>
         </section>
     </main>
-
-    <footer>
-        <div class="footer-content">
-            <div class="footer-logo">
-                <img src="assets/logo.svg" alt="KKNotes Logo" class="logo">
-                <h3>KKNotes</h3>
-            </div>
-            <div class="footer-links">
-                <a href="#home">Home</a>
-                <a href="#notes">Notes</a>
-                <a href="#videos">Videos</a>
-                <a href="#chat">Chat</a>
-                <a href="#about">About</a>
-            </div>
-            <div class="footer-social">
-                <a href="https://github.com/ChristopherJoshy" target="_blank"><i class="fab fa-github"></i></a>
-                <a href="https://www.instagram.com/calculatederror/" target="_blank"><i class="fab fa-instagram"></i></a>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2023 KKNotes. All rights reserved.</p>
-        </div>
-    </footer>
 
     <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-compat.js"></script>
@@ -257,6 +431,7 @@
     <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-database-compat.js"></script>
     <script src="js/env-config.js"></script>
     <script src="js/firebase-config.js"></script>
+    <script src="js/github-stats.js"></script>
     
     <!-- Theme toggle fix -->
     <script>
@@ -386,6 +561,252 @@
                 gap: 25px !important;
             }
         }
+
+        /* Install Banner Styles */
+        .install-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: #6366f1;
+            color: white;
+            z-index: 1001;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+
+        .install-banner-content {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .install-banner-icon {
+            font-size: 24px;
+            margin-right: 15px;
+        }
+
+        .install-banner-text {
+            flex: 1;
+        }
+
+        .install-banner-text h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .install-banner-text p {
+            margin: 5px 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .install-banner-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .install-banner-btn {
+            background-color: white;
+            color: #6366f1;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: background-color 0.2s;
+        }
+
+        .install-banner-btn:hover {
+            background-color: #f0f0f0;
+        }
+
+        .install-banner-dismiss {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .install-banner-dismiss:hover {
+            opacity: 1;
+        }
+
+        /* Adjust main content when banner is shown */
+        body.has-install-banner main {
+            margin-top: 60px;
+        }
+
+        @media (max-width: 768px) {
+            .install-banner-content {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 15px;
+            }
+
+            .install-banner-icon {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+
+            .install-banner-text {
+                margin-bottom: 10px;
+            }
+
+            .install-banner-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            body.has-install-banner main {
+                margin-top: 120px;
+            }
+        }
     </style>
+    <script>
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', async () => {
+                try {
+                    const registration = await navigator.serviceWorker.register('./sw.js', {
+                        scope: './'
+                    });
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                } catch (err) {
+                    console.error('ServiceWorker registration failed: ', err);
+                }
+            });
+        }
+
+        // PWA Install Prompt
+        let deferredPrompt;
+        
+        // Install Banner Elements
+        const installBanner = document.getElementById('install-banner');
+        const installBannerBtn = document.getElementById('install-banner-btn');
+        const installBannerDismiss = document.getElementById('install-banner-dismiss');
+
+        // Debug function to check PWA status
+        function debugPWAStatus() {
+            console.log('=== PWA Debug Information ===');
+            
+            // Check if running in standalone mode
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+            console.log('Running in standalone mode:', isStandalone);
+            
+            // Check if service worker is supported
+            console.log('Service Worker supported:', 'serviceWorker' in navigator);
+            
+            // Check if manifest is loaded
+            const manifestLink = document.querySelector('link[rel="manifest"]');
+            console.log('Manifest link found:', !!manifestLink);
+            if (manifestLink) {
+                console.log('Manifest href:', manifestLink.href);
+            }
+            
+            // Check if running on HTTPS
+            console.log('Running on HTTPS:', window.location.protocol === 'https:');
+            
+            // Check if deferredPrompt is available
+            console.log('Deferred prompt available:', !!deferredPrompt);
+            
+            // Check if banner is visible
+            console.log('Install banner visible:', installBanner.style.display === 'block');
+            
+            // Check if running on a mobile device
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            console.log('Running on mobile device:', isMobile);
+            
+            // Check if browser supports PWA installation
+            const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+            const isEdge = /Edg/.test(navigator.userAgent);
+            const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+            console.log('Browser supports PWA installation:', isChrome || isEdge || isSafari);
+            
+            console.log('===========================');
+        }
+
+        // Function to show install prompt
+        function showInstallPrompt() {
+            // Check if the app is already installed
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                console.log('App is already installed');
+                return;
+            }
+            
+            // Show the install banner
+            installBanner.style.display = 'block';
+            document.body.classList.add('has-install-banner');
+            
+            // Run debug function
+            debugPWAStatus();
+        }
+
+        // Show install prompt on page load
+        window.addEventListener('load', () => {
+            // Delay showing the prompt slightly to ensure the page is fully loaded
+            setTimeout(showInstallPrompt, 2000);
+        });
+
+        // Capture the beforeinstallprompt event
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('beforeinstallprompt event fired');
+            // Prevent Chrome 67 and earlier from automatically showing the prompt
+            e.preventDefault();
+            // Stash the event so it can be triggered later
+            deferredPrompt = e;
+            // Show the install banner
+            installBanner.style.display = 'block';
+            document.body.classList.add('has-install-banner');
+            
+            // Run debug function
+            debugPWAStatus();
+        });
+
+        // Handle the install banner button click
+        installBannerBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                // Show the install prompt
+                deferredPrompt.prompt();
+                // Wait for the user to respond to the prompt
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`User response to the install prompt: ${outcome}`);
+                // Clear the deferredPrompt variable
+                deferredPrompt = null;
+                // Hide the install banner
+                installBanner.style.display = 'none';
+                document.body.classList.remove('has-install-banner');
+            } else {
+                // If no deferred prompt, show a message about manual installation
+                alert('To install KKNotes, click the menu button in your browser and select "Add to Home Screen" or "Install KKNotes".');
+            }
+        });
+
+        // Handle the install banner dismiss button click
+        installBannerDismiss.addEventListener('click', () => {
+            installBanner.style.display = 'none';
+            document.body.classList.remove('has-install-banner');
+        });
+
+        window.addEventListener('appinstalled', (evt) => {
+            // Log the install event
+            console.log('PWA was installed');
+            // Hide the install banner
+            installBanner.style.display = 'none';
+            document.body.classList.remove('has-install-banner');
+        });
+    </script>
 </body>
 </html>

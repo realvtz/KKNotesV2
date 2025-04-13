@@ -1,5 +1,3 @@
-
-
 document.addEventListener('DOMContentLoaded', () => {
     
     const menuToggle = document.querySelector('.menu-toggle');
@@ -77,5 +75,31 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('User is logged in, redirecting to:', redirectTarget);
         sessionStorage.removeItem('redirectAfterLogin');
         window.location.href = redirectTarget;
+    }
+    
+    // Add touch event handling for mobile
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    document.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].screenX;
+    }, false);
+    
+    document.addEventListener('touchend', e => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    }, false);
+    
+    function handleSwipe() {
+        const swipeThreshold = 50;
+        const swipeDistance = touchEndX - touchStartX;
+        
+        if (Math.abs(swipeDistance) > swipeThreshold) {
+            if (swipeDistance > 0 && navLinks.classList.contains('active')) {
+                // Swipe right - close menu
+                navLinks.classList.remove('active');
+                body.classList.remove('menu-open');
+            }
+        }
     }
 }); 

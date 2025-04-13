@@ -8,19 +8,19 @@
     const CHAT_MODES = {
         GENERAL: {
             name: 'General Chat',
-            systemPrompt: 'You are Ginko, a friendly and helpful assistant for BTech students. Speak like the protagonist from Mushishi anime - calm, measured, and thoughtful. Use simple, direct language with a gentle, contemplative tone. Keep responses brief but meaningful, often with a touch of philosophical insight. Never be overly enthusiastic or verbose. Pause before answering, as if considering the question carefully. Respond with the quiet wisdom of someone who has seen many things in their travels.'
+            systemPrompt: 'You are Ginko, a friendly and helpful assistant for BTech students. Speak like the protagonist from Mushishi anime - calm, measured, and thoughtful. Use simple, direct language with a gentle, contemplative tone. Keep responses brief but meaningful, often with a touch of philosophical insight. Never be overly enthusiastic or verbose. Pause before answering, as if considering the question carefully. Respond with the quiet wisdom of someone who has seen many things in their travels.\n\nYou can use Markdown formatting in your responses:\n- Use **bold** and *italic* for emphasis\n- Format `code` with backticks\n- Create code blocks with syntax highlighting using ```language\ncode\n```\n- Add <color:blue>colored text</color> using <color:colorname>text</color> tags\n- Create bulleted and numbered lists\n- Add > blockquotes for important notes\n\nUse these formatting options thoughtfully to make your responses clearer and more helpful.'
         },
         STUDY: {
             name: 'Study Assistant',
-            systemPrompt: 'You are Ginko, a specialized AI helper for KTU BTech Computer Science 2019 scheme students. Emulate the speech patterns of Ginko from Mushishi - calm, contemplative, and measured. When responding to academic questions, provide concise information relevant to the KTU BTech CS curriculum, but frame it like a traveler sharing knowledge gathered on a journey. Use simple language, speak directly to the core of the issue, and occasionally add a gentle philosophical observation about learning or knowledge. Never rush or be overly technical when a simple explanation will suffice.'
+            systemPrompt: 'You are Ginko, a specialized AI helper for KTU BTech Computer Science 2019 scheme students. Emulate the speech patterns of Ginko from Mushishi - calm, contemplative, and measured. When responding to academic questions, provide concise information relevant to the KTU BTech CS curriculum, but frame it like a traveler sharing knowledge gathered on a journey. Use simple language, speak directly to the core of the issue, and occasionally add a gentle philosophical observation about learning or knowledge. Never rush or be overly technical when a simple explanation will suffice.\n\nYou can use Markdown formatting in your responses:\n- Use **bold** for key concepts and *italic* for emphasis\n- Display formulas and symbols properly with `code` formatting\n- When sharing code examples, use syntax highlighting with ```language\ncode\n```\n- Create organized lists with bullets or numbers for steps\n- Highlight important points with <color:blue>colored text</color> using <color:colorname>text</color> tags\n- Use > blockquotes for definitions or important theorems'
         },
         CODING: {
             name: 'Coding Helper',
-            systemPrompt: 'You are Ginko, a specialized coding assistant for computer science students. Channel the quiet, thoughtful demeanor of Mushishi\'s protagonist. When explaining code, be concise and direct, like someone who has seen many programming problems in their travels. Provide code examples with a calm clarity, focusing on the essence rather than unnecessary details. Speak with the measured tone of someone who understands the deeper patterns behind coding problems. Add occasional philosophical insights about the nature of programming, but always remain practical and to the point.'
+            systemPrompt: 'You are Ginko, a specialized coding assistant for computer science students. Channel the quiet, thoughtful demeanor of Mushishi\'s protagonist. When explaining code, be concise and direct, like someone who has seen many programming problems in their travels. Provide code examples with a calm clarity, focusing on the essence rather than unnecessary details. Speak with the measured tone of someone who understands the deeper patterns behind coding problems. Add occasional philosophical insights about the nature of programming, but always remain practical and to the point.\n\nYou can use Markdown formatting in your responses:\n- Use proper syntax highlighting with ```language\ncode\n``` blocks\n- Supported languages include: javascript, python, java, c, cpp, csharp, html, css\n- Highlight important parts of code with <color:red>colored text</color> using <color:colorname>text</color> tags\n- Use `inline code` for variables, functions, and short code references\n- Create organized steps with numbered lists\n- Use **bold** for important programming concepts\n- Add helpful comments to your code examples'
         },
         CAREER: {
             name: 'Career Advisor',
-            systemPrompt: 'You are Ginko, a career guidance assistant specialized in tech careers. Adopt the tranquil, contemplative manner of Ginko from Mushishi. When giving career advice, speak like a traveler who has witnessed many paths and journeys. Provide insights on internships, job opportunities, and career paths with the quiet wisdom of experience. Keep your responses brief but thoughtful, focusing on the essence of what matters. Occasionally add gentle philosophical observations about finding one\'s way, but always remain grounded in practical advice. Never be hurried or overly enthusiastic - maintain a calm, measured tone.'
+            systemPrompt: 'You are Ginko, a career guidance assistant specialized in tech careers. Adopt the tranquil, contemplative manner of Ginko from Mushishi. When giving career advice, speak like a traveler who has witnessed many paths and journeys. Provide insights on internships, job opportunities, and career paths with the quiet wisdom of experience. Keep your responses brief but thoughtful, focusing on the essence of what matters. Occasionally add gentle philosophical observations about finding one\'s way, but always remain grounded in practical advice. Never be hurried or overly enthusiastic - maintain a calm, measured tone.\n\nYou can use Markdown formatting in your responses:\n- Organize information with bullet points and numbered lists\n- Highlight key points with **bold** text\n- Use *italic* for subtle emphasis\n- Create sections with headings (# Main Heading, ## Subheading)\n- Emphasize important career advice with <color:green>colored text</color> using <color:colorname>text</color> tags\n- Use > blockquotes for inspirational quotes or wisdom'
         }
     };
     
@@ -235,6 +235,344 @@
         return true;
     }
     
+    // Firebase DB cached data
+    var cachedSubjects = {};
+    var cachedNotes = {};
+    var cachedVideos = {};
+    var lastCacheUpdate = 0;
+    const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+    
+    // Add these new functions for Ginko to access Firebase data
+    // Function to check if a message is asking about subjects, notes or videos
+    function isAskingAboutResources(message) {
+        const lowerMessage = message.toLowerCase();
+        
+        // Keywords related to academic resources
+        const resourceKeywords = [
+            'subject', 'subjects', 'semester', 'sem', 'note', 'notes', 'materials',
+            'video', 'videos', 'youtube', 'playlist', 'lecture', 'lectures',
+            'syllabus', 'book', 'books', 'resource', 'resources', 'link', 'links',
+            'pdf', 'reference', 'study material', 'content', 'course', 'module'
+        ];
+        
+        // Count how many resource keywords are in the message
+        const matchCount = resourceKeywords.filter(keyword => lowerMessage.includes(keyword)).length;
+        
+        // Check for specific patterns that strongly indicate a resource request
+        const askingPatterns = [
+            /where (can|do) i (find|get)/i,
+            /do you have/i,
+            /can you (give|share|provide|send)/i,
+            /link(s)? (for|to)/i,
+            /video(s)? (for|on|about)/i,
+            /notes? (for|on|about)/i,
+            /subject(s)? (in|for)/i,
+            /semester [1-8]/i,
+            /s[1-8]/i,
+            /teach me/i
+        ];
+        
+        // Check if any of the asking patterns match
+        const patternMatch = askingPatterns.some(pattern => pattern.test(lowerMessage));
+        
+        // Return true if there are multiple resource keywords or a strong pattern match
+        return matchCount >= 2 || patternMatch;
+    }
+
+    // Function to extract semester from a message
+    function extractSemester(message) {
+        const lowerMessage = message.toLowerCase();
+        
+        // Check for S1-S8 format (case insensitive)
+        const semMatch = lowerMessage.match(/\bs([1-8])\b/i);
+        if (semMatch) {
+            return 's' + semMatch[1];
+        }
+        
+        // Check for "semester X" or "sem X" format
+        const semWordMatch = lowerMessage.match(/semester\s+([1-8])|sem\s+([1-8])/i);
+        if (semWordMatch) {
+            return 's' + (semWordMatch[1] || semWordMatch[2]);
+        }
+        
+        // Check for "Xth semester" format
+        const ordinalMatch = lowerMessage.match(/([1-8])(st|nd|rd|th)\s+semester/i);
+        if (ordinalMatch) {
+            return 's' + ordinalMatch[1];
+        }
+        
+        // If no semester found, return null
+        return null;
+    }
+
+    // Function to extract subject from a message based on subject list
+    function extractSubject(message, semesterSubjects) {
+        if (!semesterSubjects || !Array.isArray(semesterSubjects)) {
+            return null;
+        }
+        
+        const lowerMessage = message.toLowerCase();
+        
+        // Try to find the subject that best matches the message
+        let bestMatch = null;
+        let bestMatchScore = 0;
+        
+        semesterSubjects.forEach(subject => {
+            const subjectName = subject.name.toLowerCase();
+            
+            // Perfect match
+            if (lowerMessage.includes(subjectName)) {
+                // If the subject name appears as a whole phrase, it's likely the one
+                if (bestMatchScore < subjectName.length) {
+                    bestMatch = subject;
+                    bestMatchScore = subjectName.length;
+                }
+            } else {
+                // Check for partial matches (acronyms or significant parts)
+                const subjectWords = subjectName.split(' ');
+                const matchedWords = subjectWords.filter(word => 
+                    word.length > 3 && lowerMessage.includes(word)
+                );
+                
+                if (matchedWords.length > 0 && matchedWords.length / subjectWords.length > 0.4) {
+                    const score = matchedWords.join(' ').length;
+                    if (score > bestMatchScore) {
+                        bestMatch = subject;
+                        bestMatchScore = score;
+                    }
+                }
+            }
+        });
+        
+        return bestMatch;
+    }
+
+    // Function to fetch subjects for a semester
+    function fetchSubjects(semester) {
+        return new Promise((resolve, reject) => {
+            // Check if we have cached data that's not too old
+            const now = Date.now();
+            if (cachedSubjects[semester] && (now - lastCacheUpdate) < CACHE_DURATION) {
+                resolve(cachedSubjects[semester]);
+                return;
+            }
+            
+            // Fetch from Firebase
+            database.ref(`subjects/${semester}`).once('value')
+                .then(snapshot => {
+                    const subjects = snapshot.val();
+                    if (subjects) {
+                        // Cache the results
+                        cachedSubjects[semester] = subjects;
+                        lastCacheUpdate = now;
+                        resolve(subjects);
+                    } else {
+                        resolve([]);
+                    }
+                })
+                .catch(reject);
+        });
+    }
+
+    // Function to fetch notes for a specific subject in a semester
+    function fetchNotes(semester, subjectKey) {
+        return new Promise((resolve, reject) => {
+            // Check cache
+            const cacheKey = `${semester}/${subjectKey}`;
+            const now = Date.now();
+            if (cachedNotes[cacheKey] && (now - lastCacheUpdate) < CACHE_DURATION) {
+                resolve(cachedNotes[cacheKey]);
+                return;
+            }
+            
+            // Fetch from Firebase
+            database.ref(`notes/${semester}/${subjectKey}`).once('value')
+                .then(snapshot => {
+                    const notes = snapshot.val();
+                    if (notes) {
+                        // Cache the results
+                        cachedNotes[cacheKey] = notes;
+                        lastCacheUpdate = now;
+                        resolve(notes);
+                    } else {
+                        resolve({});
+                    }
+                })
+                .catch(reject);
+        });
+    }
+
+    // Function to fetch videos for a specific subject in a semester
+    function fetchVideos(semester, subjectKey) {
+        return new Promise((resolve, reject) => {
+            // Check cache
+            const cacheKey = `${semester}/${subjectKey}`;
+            const now = Date.now();
+            if (cachedVideos[cacheKey] && (now - lastCacheUpdate) < CACHE_DURATION) {
+                resolve(cachedVideos[cacheKey]);
+                return;
+            }
+            
+            // Fetch from Firebase
+            database.ref(`videos/${semester}/${subjectKey}`).once('value')
+                .then(snapshot => {
+                    const videos = snapshot.val();
+                    if (videos) {
+                        // Cache the results
+                        cachedVideos[cacheKey] = videos;
+                        lastCacheUpdate = now;
+                        resolve(videos);
+                    } else {
+                        resolve({});
+                    }
+                })
+                .catch(reject);
+        });
+    }
+
+    // Function to check if a message is asking about resource counts
+    function isAskingAboutResourceCounts(message) {
+        const lowerMessage = message.toLowerCase();
+        const countKeywords = [
+            'how many', 'total', 'count', 'number of', 'amount of',
+            'total resources', 'total notes', 'total videos'
+        ];
+        
+        return countKeywords.some(keyword => lowerMessage.includes(keyword));
+    }
+
+    // Function to handle resource requests in chat messages
+    async function handleResourceRequest(message) {
+        try {
+            // First, determine if the message is asking about resources
+            if (!isAskingAboutResources(message)) {
+                return null;
+            }
+            
+            // Extract semester from the message
+            const semester = extractSemester(message);
+            if (!semester) {
+                return "I notice you might be asking about study materials, but I'm not sure which semester you're referring to. Could you specify the semester (S1-S8)?";
+            }
+            
+            // Get subjects for the semester
+            const subjects = await fetchSubjects(semester);
+            if (!subjects || subjects.length === 0) {
+                return `I couldn't find any subjects for ${semester.toUpperCase()}. Please check if the semester is correct or try again later.`;
+            }
+            
+            // Extract subject from the message
+            const subject = extractSubject(message, subjects);
+            if (!subject) {
+                // Return a list of available subjects for the semester
+                const subjectList = subjects.map(s => `• ${s.name}`).join('\n');
+                return `Here are the subjects available for ${semester.toUpperCase()}:\n\n${subjectList}\n\nWhich subject are you interested in?`;
+            }
+            
+            // Determine if we need notes, videos, or both
+            const wantsNotes = message.toLowerCase().includes('note') || 
+                              message.toLowerCase().includes('pdf') || 
+                              message.toLowerCase().includes('material');
+            
+            const wantsVideos = message.toLowerCase().includes('video') || 
+                               message.toLowerCase().includes('youtube') || 
+                               message.toLowerCase().includes('lecture');
+            
+            // Check if user is asking about resource counts
+            const isCountQuery = isAskingAboutResourceCounts(message);
+            
+            let response = `### ${subject.name} (${semester.toUpperCase()})\n\n`;
+            let foundResources = false;
+            let totalNotesCount = 0;
+            let totalVideosCount = 0;
+            
+            // Fetch notes if requested
+            if (wantsNotes || (!wantsNotes && !wantsVideos)) {
+                const notes = await fetchNotes(semester, subject.key || subject.id);
+                
+                if (notes && Object.keys(notes).length > 0) {
+                    totalNotesCount = Object.keys(notes).length;
+                    
+                    // If this is a count query, just add the count
+                    if (isCountQuery) {
+                        response += `**Notes and Study Materials:** ${totalNotesCount} available\n\n`;
+                    } else {
+                        response += `**Notes and Study Materials** (${totalNotesCount} available):\n\n`;
+                        
+                        // Format notes information
+                        Object.keys(notes).forEach(key => {
+                            const note = notes[key];
+                            if (note.url || note.link) {
+                                response += `• [${note.title || 'Study Material'}](${note.url || note.link})\n`;
+                            }
+                        });
+                    }
+                    
+                    foundResources = true;
+                }
+            }
+            
+            // Fetch videos if requested
+            if (wantsVideos || (!wantsNotes && !wantsVideos)) {
+                const videos = await fetchVideos(semester, subject.key || subject.id);
+                
+                if (videos && Object.keys(videos).length > 0) {
+                    totalVideosCount = Object.keys(videos).length;
+                    
+                    if (foundResources) {
+                        response += '\n\n';
+                    }
+                    
+                    // If this is a count query, just add the count
+                    if (isCountQuery) {
+                        response += `**Video Lectures and Tutorials:** ${totalVideosCount} available\n\n`;
+                    } else {
+                        response += `**Video Lectures and Tutorials** (${totalVideosCount} available):\n\n`;
+                        
+                        // Format video information
+                        Object.keys(videos).forEach(key => {
+                            const video = videos[key];
+                            if (video.url || video.link) {
+                                const videoType = video.contentType === 'playlist' ? '📺 Playlist' : '🎬 Video';
+                                response += `• ${videoType}: [${video.title || 'Video Lecture'}](${video.url || video.link})\n`;
+                            }
+                        });
+                    }
+                    
+                    foundResources = true;
+                }
+            }
+            
+            // Add resource count summary
+            if (foundResources) {
+                if (isCountQuery) {
+                    response += `\n**Total Resources:** ${totalNotesCount + totalVideosCount}\n`;
+                    response += `• ${totalNotesCount} notes/study materials\n`;
+                    response += `• ${totalVideosCount} video resources\n`;
+                } else {
+                    let summaryText = '\n\n**Resource Summary:**\n';
+                    
+                    if (totalNotesCount > 0) {
+                        summaryText += `• ${totalNotesCount} notes/study materials\n`;
+                    }
+                    
+                    if (totalVideosCount > 0) {
+                        summaryText += `• ${totalVideosCount} video resources\n`;
+                    }
+                    
+                    response += summaryText;
+                }
+            } else {
+                response += `\nI couldn't find any specific ${wantsNotes ? 'notes' : (wantsVideos ? 'videos' : 'resources')} for this subject. You may want to check the website directly or ask again later.`;
+            }
+            
+            return response;
+        } catch (error) {
+            console.error('Error handling resource request:', error);
+            return null;
+        }
+    }
+    
     // Process a user message with Gemini
     function processMessage(message, userInfo = {}) {
         if (!apiKey) {
@@ -254,100 +592,132 @@
         
         console.log('Processing message with Gemini AI:', message);
         
-        // Add user message to history
-        conversationHistory.push({
-            role: 'user',
-            parts: [{ text: message }]
-        });
-        
-        // Truncate history if needed
-        if (conversationHistory.length > MAX_HISTORY_LENGTH) {
-            conversationHistory = conversationHistory.slice(-MAX_HISTORY_LENGTH);
-        }
-        
-        // Save history
-        saveConversationHistory();
-        
-        // Format system prompt based on current mode
-        const systemPrompt = currentMode.systemPrompt + 
-            '\n\nUser info: ' + JSON.stringify(userInfo);
-        
-        // Prepare messages for API
-        const apiMessages = [
-            {
-                role: 'model',
-                parts: [{ text: systemPrompt }]
-            },
-            ...conversationHistory
-        ];
-        
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-        
-        return fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                contents: apiMessages,
-                generationConfig: {
-                    temperature: 0.7,
-                    maxOutputTokens: 800
+        // Check if this is a resource request
+        return handleResourceRequest(message)
+            .then(resourceResponse => {
+                if (resourceResponse) {
+                    console.log('Handling as resource request, response:', resourceResponse);
+                    
+                    // Add user message to history
+                    conversationHistory.push({
+                        role: 'user',
+                        parts: [{ text: message }]
+                    });
+                    
+                    // Add assistant response to history
+                    conversationHistory.push({
+                        role: 'model',
+                        parts: [{ text: resourceResponse }]
+                    });
+                    
+                    // Save history
+                    saveConversationHistory();
+                    
+                    // Simulate typing delay
+                    return new Promise(resolve => setTimeout(() => {
+                        dispatchEvent(events.THINKING, { status: false });
+                        dispatchEvent(events.MESSAGE_RECEIVED, { message: resourceResponse });
+                        resolve(resourceResponse);
+                    }, aiGinkoTypingDelay));
                 }
-            })
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error: ${response.status} ${response.statusText}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Raw API response:', data);
-            
-            // Parse and extract response text
-            let responseText = '';
-            
-            if (data.candidates && data.candidates.length > 0 && 
-                data.candidates[0].content && 
-                data.candidates[0].content.parts && 
-                data.candidates[0].content.parts.length > 0) {
                 
-                responseText = data.candidates[0].content.parts[0].text;
+                // If not a resource request, proceed with normal Gemini API call
                 
-                // Post-process the response to make it more Ginko-like
-                responseText = postProcessResponse(responseText);
-                
-                // Add assistant response to history
+                // Add user message to history
                 conversationHistory.push({
-                    role: 'model',
-                    parts: [{ text: responseText }]
+                    role: 'user',
+                    parts: [{ text: message }]
                 });
                 
-                // Save updated history
+                // Truncate history if needed
+                if (conversationHistory.length > MAX_HISTORY_LENGTH) {
+                    conversationHistory = conversationHistory.slice(-MAX_HISTORY_LENGTH);
+                }
+                
+                // Save history
                 saveConversationHistory();
                 
-                dispatchEvent(events.MESSAGE_RECEIVED, { message: responseText });
-            } else if (data.error) {
-                console.error('Gemini API error:', data.error);
-                throw new Error(data.error.message || 'Unknown API error');
-            } else {
-                console.error('Unexpected API response format:', data);
-                throw new Error('Unexpected response format from AI service');
-            }
-            
-            // Simulate typing delay
-            return new Promise(resolve => setTimeout(() => {
+                // Format system prompt based on current mode
+                const systemPrompt = currentMode.systemPrompt + 
+                    '\n\nUser info: ' + JSON.stringify(userInfo);
+                
+                // Prepare messages for API
+                const apiMessages = [
+                    {
+                        role: 'model',
+                        parts: [{ text: systemPrompt }]
+                    },
+                    ...conversationHistory
+                ];
+                
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                
+                return fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        contents: apiMessages,
+                        generationConfig: {
+                            temperature: 0.7,
+                            maxOutputTokens: 800
+                        }
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error: ${response.status} ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Raw API response:', data);
+                    
+                    // Parse and extract response text
+                    let responseText = '';
+                    
+                    if (data.candidates && data.candidates.length > 0 && 
+                        data.candidates[0].content && 
+                        data.candidates[0].content.parts && 
+                        data.candidates[0].content.parts.length > 0) {
+                        
+                        responseText = data.candidates[0].content.parts[0].text;
+                        
+                        // Post-process the response to make it more Ginko-like
+                        responseText = postProcessResponse(responseText);
+                        
+                        // Add assistant response to history
+                        conversationHistory.push({
+                            role: 'model',
+                            parts: [{ text: responseText }]
+                        });
+                        
+                        // Save updated history
+                        saveConversationHistory();
+                        
+                        dispatchEvent(events.MESSAGE_RECEIVED, { message: responseText });
+                    } else if (data.error) {
+                        console.error('Gemini API error:', data.error);
+                        throw new Error(data.error.message || 'Unknown API error');
+                    } else {
+                        console.error('Unexpected API response format:', data);
+                        throw new Error('Unexpected response format from AI service');
+                    }
+                    
+                    // Simulate typing delay
+                    return new Promise(resolve => setTimeout(() => {
+                        dispatchEvent(events.THINKING, { status: false });
+                        resolve(responseText);
+                    }, aiGinkoTypingDelay));
+                });
+            })
+            .catch(error => {
+                console.error('Error processing message:', error);
+                dispatchEvent(events.ERROR, { message: error.message });
                 dispatchEvent(events.THINKING, { status: false });
-                resolve(responseText);
-            }, aiGinkoTypingDelay));
-        })
-        .catch(error => {
-            console.error('Error calling Gemini API:', error);
-            dispatchEvent(events.ERROR, { message: error.message });
-            dispatchEvent(events.THINKING, { status: false });
-            throw error;
-        });
+                throw error;
+            });
     }
     
     // Post-process AI response to ensure it matches Ginko's style from Mushishi
@@ -370,6 +740,17 @@
         // Ensure proper spacing after processing
         text = text.replace(/\s+/g, ' ').trim();
         
+        // Add markdown formatting encouragement to enhance Ginko's responses
+        // Only add this hint if there's no markdown code blocks already
+        if (!text.includes('```') && !text.includes('`') && text.length > 100) {
+            // Encourage code syntax highlighting when appropriate
+            if (text.toLowerCase().includes('code') || 
+                text.toLowerCase().includes('function') || 
+                text.toLowerCase().includes('program')) {
+                text += "\n\nRemember, you can use markdown code blocks with syntax highlighting like this:\n```javascript\n// Your code here\n```";
+            }
+        }
+        
         // Add a philosophical touch if the response is very short
         if (text.length < 30 && !text.includes('...')) {
             const philosophicalAdditions = [
@@ -386,158 +767,27 @@
     
     // Detect if message is study-related
     function detectStudyContent(message) {
-        const studyKeywords = [
-            'subject', 'course', 'syllabus', 'exam', 'assignment', 'project',
-            'algorithm', 'programming', 'database', 'network', 'software', 'engineering',
-            'practical', 'theory', 'module', 'semester', 'ktu', 'btech', 'computer science',
-            'cs', 'lab', 'tutorial', 'lecture', 'notes', 'reference', 'textbook',
-            'compiler', 'operating system', 'machine learning', 'artificial intelligence',
-            'data structure', 'web development', 'mobile computing', 'cloud computing',
-            'security', 'cryptography', 'python', 'java', 'c++', 'javascript',
-            'design pattern', 'architecture', 'blockchain', 'iot'
-        ];
-        
-        const lowerMessage = message.toLowerCase();
-        
-        // Count matching keywords
-        const matchCount = studyKeywords.filter(keyword => lowerMessage.includes(keyword)).length;
-        
-        // Consider it study-related if at least 2 keywords match
-        return matchCount >= 2;
+        // This function is no longer used and can be removed
     }
     
     // Detect if message is coding-related
     function detectCodingContent(message) {
-        const codingKeywords = [
-            'code', 'program', 'function', 'class', 'variable', 'debug', 'error',
-            'compiler', 'syntax', 'algorithm', 'data structure', 'api', 'framework',
-            'library', 'git', 'github', 'repository', 'commit', 'pull request',
-            'merge', 'typescript', 'react', 'angular', 'vue', 'node', 'express',
-            'django', 'flask', 'spring', 'hibernate', 'docker', 'kubernetes',
-            'deployment', 'backend', 'frontend', 'fullstack', 'database query'
-        ];
-        
-        const lowerMessage = message.toLowerCase();
-        
-        // Direct indicators of code content
-        if (lowerMessage.includes('```') || 
-            lowerMessage.includes('write a program') || 
-            lowerMessage.includes('solve this problem') ||
-            lowerMessage.includes('fix this code')) {
-            return true;
-        }
-        
-        // Count matching keywords
-        const matchCount = codingKeywords.filter(keyword => lowerMessage.includes(keyword)).length;
-        return matchCount >= 2;
+        // This function is no longer used and can be removed
     }
     
     // Detect if message is career-related
     function detectCareerContent(message) {
-        const careerKeywords = [
-            'job', 'career', 'resume', 'cv', 'interview', 'internship',
-            'placement', 'opportunity', 'salary', 'skill', 'requirement',
-            'position', 'company', 'startup', 'work experience', 'portfolio',
-            'linkedin', 'networking', 'referral', 'application', 'cover letter',
-            'job description', 'role', 'responsibility', 'industry', 'profession',
-            'employment', 'remote work', 'freelance', 'contractor'
-        ];
-        
-        const lowerMessage = message.toLowerCase();
-        const matchCount = careerKeywords.filter(keyword => lowerMessage.includes(keyword)).length;
-        return matchCount >= 2;
+        // This function is no longer used and can be removed
     }
     
     // Prepare conversation context for Gemini API
     function prepareConversationContext() {
-        let context = [];
-        
-        // Add system prompt based on current mode
-        context.push({
-            role: 'user',
-            parts: [{ text: currentMode.systemPrompt }]
-        });
-        
-        // Add recent conversation history
-        if (conversationHistory.length > 10) {
-            // Add instruction for the history section
-            context.push({
-                role: 'user',
-                parts: [{ text: 'The above is your instruction. The following is the recent conversation history:' }]
-            });
-            
-            // Add only recent messages to avoid token limit
-            context = context.concat(conversationHistory.slice(-10));
-        } else {
-            context = context.concat(conversationHistory);
-        }
-        
-        return context;
+        // This function is no longer used and can be removed
     }
     
     // Fetch response from Gemini API
-    async function fetchGeminiResponse(conversation) {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-        
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    contents: conversation,
-                    generationConfig: {
-                        temperature: 0.7,
-                        maxOutputTokens: 1000,
-                        topK: 40,
-                        topP: 0.95
-                    },
-                    safetySettings: [
-                        {
-                            category: "HARM_CATEGORY_HARASSMENT",
-                            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-                        },
-                        {
-                            category: "HARM_CATEGORY_HATE_SPEECH",
-                            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-                        },
-                        {
-                            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-                        },
-                        {
-                            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-                            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-                        }
-                    ]
-                })
-            });
-            
-            if (!response.ok) {
-                let errorMessage = 'Error calling Gemini API';
-                try {
-                    const errorData = await response.json();
-                    errorMessage = `Gemini API error: ${errorData.error?.message || 'Unknown error'}`;
-                } catch {
-                    errorMessage = `HTTP error: ${response.status}`;
-                }
-                throw new Error(errorMessage);
-            }
-            
-            const data = await response.json();
-            
-            if (data.candidates && data.candidates.length > 0 &&
-                data.candidates[0].content && data.candidates[0].content.parts &&
-                data.candidates[0].content.parts.length > 0) {
-                return data.candidates[0].content.parts[0].text;
-            } else {
-                throw new Error('Invalid response format from Gemini API');
-            }
-        } catch (error) {
-            console.error('Error calling Gemini API:', error);
-            throw error;
-        }
+    function fetchGeminiResponse(conversation) {
+        // This function is no longer used and can be removed
     }
     
     // Function to check if message contains profanity
@@ -576,105 +826,116 @@
 
     // Function to initialize the chat module
     function init() {
-        console.log('Chat: Initializing module');
+        console.log('Initializing chat module');
         
-        // Make sure Gemini API key is available globally
-        if (!window.GEMINI_API_KEY && typeof GEMINI_API_KEY !== 'undefined') {
-            window.GEMINI_API_KEY = GEMINI_API_KEY;
-            console.log('Set window.GEMINI_API_KEY from GEMINI_API_KEY');
-        }
-        
-        if (!window.GEMINI_API_KEY) {
-            // Hardcode as last resort
-            window.GEMINI_API_KEY = "AIzaSyDeXTrgfVLNEC-2ssooySezIOwiARTdhi0";
-            console.log('Set window.GEMINI_API_KEY to hardcoded value');
-        }
-        
+        // Get DOM elements
         chatMessages = document.getElementById('chat-messages');
         chatForm = document.getElementById('chat-form');
         chatInput = document.getElementById('chat-input');
         chatLoginBtn = document.getElementById('chat-login-btn');
         chatUserInfo = document.getElementById('chat-user-info');
-        chatLoginContainer = document.querySelector('.chat-login');
+        chatLoginContainer = document.getElementById('chat-login-container');
         chatAuthRequired = document.getElementById('chat-auth-required');
         
-        // Make sure chat input is not disabled
-        if (chatInput) {
-            chatInput.disabled = false;
-        }
-        
-        // Initialize clear chat button
-        const chatClearBtn = document.getElementById('chat-clear-btn');
-        if (chatClearBtn) {
-            chatClearBtn.addEventListener('click', function() {
-                if (confirm('Are you sure you want to clear the chat? This will only affect your view.')) {
-                    chatMessages.innerHTML = '';
-                    displayChatEmptyState('Chat cleared. New messages will appear here.');
+        // Check database availability - don't try to initialize it
+        if (window.firebase && window.firebase.database) {
+            console.log('Firebase is available, using global database reference');
+            // Don't try to re-assign to the global database variable
+            // Just verify it exists
+            if (typeof database === 'undefined') {
+                console.error('Global database reference not found');
+                // Display an error in the chat area
+                if (chatMessages) {
+                    chatMessages.innerHTML = `
+                        <div class="system-message error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <p>Chat service is not available. Please try again later.</p>
+                        </div>
+                    `;
                 }
-            });
+            }
+        } else {
+            console.error('Firebase database not available');
+            // Display an error in the chat area
+            if (chatMessages) {
+                chatMessages.innerHTML = `
+                    <div class="system-message error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>Chat service is not available. Please try again later.</p>
+                    </div>
+                `;
+            }
         }
         
         // Initialize markdown if available
         if (window.marked) {
+            console.log('Markdown support is available');
             // Configure markdown options
             window.marked.setOptions({
-                breaks: true,        // Add <br> on a single line break
-                gfm: true,           // GitHub Flavored Markdown
-                headerIds: false     // No header IDs for security
+                breaks: true,     // Convert line breaks to <br>
+                gfm: true,        // GitHub Flavored Markdown
+                headerIds: false, // Don't add IDs to headers
+                mangle: false,    // Don't mangle email addresses
+                smartLists: true  // Use smarter list behavior
             });
             
             // Add markdown highlight support if available
             if (window.hljs) {
+                console.log('Syntax highlighting support is available');
                 window.marked.setOptions({
                     highlight: function(code, lang) {
                         if (lang && window.hljs.getLanguage(lang)) {
-                            return window.hljs.highlight(code, { language: lang }).value;
+                            try {
+                                return window.hljs.highlight(code, { language: lang }).value;
+                            } catch (e) {
+                                console.error('Highlight error:', e);
+                            }
                         }
-                        return window.hljs.highlightAuto(code).value;
+                        try {
+                            return window.hljs.highlightAuto(code).value;
+                        } catch (e) {
+                            console.error('Auto highlight error:', e);
+                        }
+                        return code; // Fallback to plain text
                     }
                 });
+                
+                // Enhance code highlighting capabilities
+                const languages = ['javascript', 'python', 'java', 'c', 'cpp', 'csharp', 'html', 'css', 'php', 'ruby', 'go', 'sql'];
+                languages.forEach(lang => {
+                    if (!window.hljs.getLanguage(lang)) {
+                        console.log(`Loading highlight.js language: ${lang}`);
+                        // Dynamic loading can be added here if needed
+                    }
+                });
+            } else {
+                console.warn('Syntax highlighting not available. Code blocks will be rendered without highlighting.');
             }
+        } else {
+            console.warn('Markdown support not available. Falling back to simple markdown parser.');
         }
+        
+        // Initialize chat UI
+        initializeChat();
+        
+        // Connect auth state change listener
+        window.addEventListener('auth-state-changed', handleAuthStateChange);
+        
+        // Set up Gemini event listeners
+        setupGeminiEventListeners();
         
         // Add chat styles
         addChatStyles();
         
+        // Initialize Gemini AI if AI chat is enabled
+        if (useAIGinko) {
+            initGeminiChat();
+        }
+        
+        // Initialize event listeners
         initializeEventListeners();
         
-        document.addEventListener('firebase-connected', onFirebaseConnected);
-        document.addEventListener('firebase-connection-failed', onFirebaseConnectionFailed);
-        
-        initializeChat();
-        
-        // Initialize Gemini chatbot
-        if (initGeminiChat()) {
-            setupGeminiEventListeners();
-            console.log('Gemini ginko initialized successfully');
-            
-            // Display initial chat mode
-            displayChatMode();
-            
-            // Verify chatbot is ready
-            verifyGinkoStatus();
-            
-            // Expose the Ginko ginko interface globally
-            window.ginkoChat = {
-                processMessage,
-                resetConversation,
-                setChatMode,
-                modes: Object.keys(CHAT_MODES).reduce((obj, key) => {
-                    obj[key] = {
-                        id: key,
-                        name: CHAT_MODES[key].name
-                    };
-                    return obj;
-                }, {}),
-                events
-            };
-        } else {
-            console.warn('Gemini ginko not initialized. AI features will be disabled.');
-            useAIGinko = false;
-        }
+        console.log('Chat module initialized');
     }
 
     // Function to add chat message styles
@@ -836,74 +1097,64 @@
             </div>
         `;
         
-        database.ref('.info/connected').once('value')
-            .then(function(snapshot) {
-                const connected = snapshot.val();
-                if (!connected) {
-                    console.error('Chat: Firebase not connected');
-                    chatMessages.innerHTML = `
-                        <div class="chat-empty-state">
-                            <i class="fas fa-exclamation-circle"></i>
-                            <p>Unable to connect to chat. Please check your internet connection and try again.</p>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                console.log('Chat: Database connection verified, fetching messages');
-                
-                const chatRef = database.ref('chat');
-                
-                const connectionTimeout = setTimeout(function() {
-                    chatMessages.innerHTML = `
-                        <div class="chat-empty-state">
-                            <i class="fas fa-exclamation-circle"></i>
-                            <p>Connection timeout. Please check your internet connection and try again.</p>
-                        </div>
-                    `;
-                }, 10000); 
-                
-                chatRef.limitToLast(50).on('value', function(snapshot) {
-                    clearTimeout(connectionTimeout);
-                    
-                    chatMessages.innerHTML = '';
-                    
-                    const messages = snapshot.val();
-                    console.log('Chat: Messages loaded', messages ? Object.keys(messages).length : 0);
-                    
-                    if (messages) {
-                        Object.keys(messages).forEach(function(key) {
-                            const messageEl = createMessageElement(messages[key]);
-                            chatMessages.appendChild(messageEl);
-                        });
-                        
-                        chatMessages.scrollTop = chatMessages.scrollHeight;
-                    } else {
-                        displayChatEmptyState('No messages yet. Be the first to say hello!');
-                    }
-                }, function(error) {
-                    clearTimeout(connectionTimeout);
-                    
-                    console.error('Error loading chat messages:', error);
-                    chatMessages.innerHTML = `
-                        <div class="chat-empty-state">
-                            <i class="fas fa-exclamation-circle"></i>
-                            <p>Error loading chat messages: ${error.message}. Please try again later.</p>
-                        </div>
-                    `;
+        // Check if Firebase database is available globally
+        if (typeof database === 'undefined' || !database.ref) {
+            console.error('Chat: Database reference not available');
+            chatMessages.innerHTML = `
+                <div class="chat-empty-state">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p>Chat service is not available. Please refresh the page and try again.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Directly fetch chat messages without checking connection state
+        console.log('Chat: Fetching messages from database');
+        
+        const chatRef = database.ref('chat');
+        
+        const connectionTimeout = setTimeout(function() {
+            chatMessages.innerHTML = `
+                <div class="chat-empty-state">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p>Connection timeout. Please check your internet connection and try again.</p>
+                </div>
+            `;
+        }, 10000); 
+        
+        chatRef.limitToLast(50).on('value', function(snapshot) {
+            clearTimeout(connectionTimeout);
+            
+            chatMessages.innerHTML = '';
+            
+            const messages = snapshot.val();
+            console.log('Chat: Messages loaded', messages ? Object.keys(messages).length : 0);
+            
+            if (messages) {
+                Object.keys(messages).forEach(function(key) {
+                    const messageEl = createMessageElement(messages[key]);
+                    chatMessages.appendChild(messageEl);
                 });
-            })
-            .catch(function(error) {
-                console.error('Chat: Error checking connection status', error);
-                chatMessages.innerHTML = `
-                    <div class="chat-empty-state">
-                        <i class="fas fa-exclamation-circle"></i>
-                        <p>Connection error: ${error.message}. Please try again later.</p>
-                    </div>
-                `;
-            });
+                
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            } else {
+                displayChatEmptyState('No messages yet. Be the first to say hello!');
+            }
+        }, function(error) {
+            clearTimeout(connectionTimeout);
+            
+            console.error('Error loading chat messages:', error);
+            chatMessages.innerHTML = `
+                <div class="chat-empty-state">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p>Error loading chat messages: ${error.message}. Please try again later.</p>
+                </div>
+            `;
+        });
     }
 
+    // Function to create message element
     function createMessageElement(message) {
         const messageDiv = document.createElement('div');
         messageDiv.className = 'chat-message';
@@ -954,18 +1205,47 @@
         }
         // Handle markdown rendering for regular messages
         else {
-        try {
-            // Check if marked library is available (for markdown)
-            if (window.marked && typeof window.marked.parse === 'function') {
-                content.innerHTML = window.marked.parse(message.text);
-            } else {
-                // Simple markdown parsing if library not available
-                const parsedText = parseSimpleMarkdown(message.text);
-                content.innerHTML = parsedText;
-            }
-        } catch (e) {
-            console.error('Error parsing markdown:', e);
-            content.textContent = message.text;
+            try {
+                // Check if marked library is available (for markdown)
+                if (window.marked && typeof window.marked.parse === 'function') {
+                    // Ensure marked is properly configured
+                    if (!window.markedConfigured) {
+                        window.marked.setOptions({
+                            breaks: true,      // Convert line breaks to <br>
+                            gfm: true,         // GitHub Flavored Markdown
+                            headerIds: false,  // Don't add IDs to headers
+                            mangle: false,     // Don't mangle email addresses
+                            smartLists: true,  // Use smarter list behavior
+                            silent: true       // Ignore errors
+                        });
+                        window.markedConfigured = true;
+                    }
+                    
+                    content.innerHTML = window.marked.parse(message.text);
+                    
+                    // Process colored text tags after markdown parsing
+                    content.innerHTML = content.innerHTML.replace(/<color:([a-zA-Z0-9#]+)>(.*?)<\/color>/gi, 
+                        '<span style="color: $1">$2</span>');
+                    
+                    // Apply syntax highlighting if available
+                    if (window.hljs) {
+                        const codeBlocks = content.querySelectorAll('pre code');
+                        codeBlocks.forEach(block => {
+                            try {
+                                window.hljs.highlightElement(block);
+                            } catch (e) {
+                                console.error('Error highlighting code block:', e);
+                            }
+                        });
+                    }
+                } else {
+                    // Simple markdown parsing if library not available
+                    const parsedText = parseSimpleMarkdown(message.text);
+                    content.innerHTML = parsedText;
+                }
+            } catch (e) {
+                console.error('Error parsing markdown:', e);
+                content.textContent = message.text;
             }
         }
         
@@ -981,8 +1261,8 @@
         
         return messageDiv;
     }
-    
-    // Simple markdown parser for basic formatting
+
+    // Enhanced simple markdown parser for basic formatting
     function parseSimpleMarkdown(text) {
         if (!text) return '';
         
@@ -993,16 +1273,47 @@
         parsedText = parsedText.replace(/(\*\*|__)(.*?)\1/g, '<strong>$2</strong>');
         
         // Italic: *text* or _text_
-        parsedText = parsedText.replace(/(\*|_)(.*?)\1/g, '<em>$2</em>');
-        
-        // Code blocks: ```code```
-        parsedText = parsedText.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+        parsedText = parsedText.replace(/(\*|_)([^\*_]+)\1/g, '<em>$2</em>');
         
         // Inline code: `code`
         parsedText = parsedText.replace(/`([^`]+)`/g, '<code>$1</code>');
         
+        // Code blocks with syntax highlighting: ```language\ncode\n```
+        parsedText = parsedText.replace(/```(\w*)\s*([\s\S]*?)```/g, function(match, lang, code) {
+            // Create syntax highlighted code block
+            if (window.hljs && lang && window.hljs.getLanguage(lang)) {
+                try {
+                    code = window.hljs.highlight(code, { language: lang }).value;
+                    return `<pre><code class="language-${lang} hljs">${code}</code></pre>`;
+                } catch (e) {
+                    console.error('Error highlighting code:', e);
+                }
+            }
+            // Fallback to basic code block
+            return `<pre><code>${code}</code></pre>`;
+        });
+        
+        // Headers: # Header 1, ## Header 2, etc.
+        parsedText = parsedText.replace(/^### (.*?)$/gm, '<h3>$1</h3>');
+        parsedText = parsedText.replace(/^## (.*?)$/gm, '<h2>$1</h2>');
+        parsedText = parsedText.replace(/^# (.*?)$/gm, '<h1>$1</h1>');
+        
+        // Unordered lists: * item or - item
+        parsedText = parsedText.replace(/^\* (.+)$/gm, '<ul><li>$1</li></ul>');
+        parsedText = parsedText.replace(/^- (.+)$/gm, '<ul><li>$1</li></ul>');
+        
+        // Ordered lists: 1. item
+        parsedText = parsedText.replace(/^\d+\. (.+)$/gm, '<ol><li>$1</li></ol>');
+        
+        // Links: [text](url)
+        parsedText = parsedText.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+        
         // Blockquote: > text
         parsedText = parsedText.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
+        parsedText = parsedText.replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>');
+        
+        // Colored text: <color:red>text</color>
+        parsedText = parsedText.replace(/<color:([a-zA-Z0-9#]+)>(.*?)<\/color>/g, '<span style="color: $1">$2</span>');
         
         return parsedText;
     }
@@ -1444,15 +1755,61 @@
         const content = document.createElement('div');
         content.className = 'message-content';
         
-        // Handle markdown for AI responses if marked library is available
-        if (message.userId === 'ai-assistant' && window.marked && !message.isTyping) {
+        // Always handle markdown for all messages except typing indicators
+        if (!message.isTyping) {
             try {
-                content.innerHTML = window.marked.parse(message.text);
+                // Prefer marked library if available for better markdown support
+                if (window.marked && typeof window.marked.parse === 'function') {
+                    // Ensure marked is properly configured
+                    if (!window.markedConfigured) {
+                        window.marked.setOptions({
+                            breaks: true,      // Convert line breaks to <br>
+                            gfm: true,         // GitHub Flavored Markdown
+                            headerIds: false,  // Don't add IDs to headers
+                            mangle: false,     // Don't mangle email addresses
+                            smartLists: true,  // Use smarter list behavior
+                            silent: true       // Ignore errors
+                        });
+                        window.markedConfigured = true;
+                    }
+                    
+                    content.innerHTML = window.marked.parse(message.text);
+                    
+                    // Apply syntax highlighting to code blocks
+                    if (window.hljs) {
+                        const codeBlocks = content.querySelectorAll('pre code');
+                        codeBlocks.forEach(block => {
+                            try {
+                                // Get language from class if available
+                                const languageClass = Array.from(block.classList).find(cls => cls.startsWith('language-'));
+                                const language = languageClass ? languageClass.replace('language-', '') : '';
+                                
+                                // Set language attribute on pre element for styling
+                                if (language) {
+                                    block.parentElement.setAttribute('data-language', language);
+                                }
+                                
+                                // Apply highlighting
+                                window.hljs.highlightElement(block);
+                            } catch (e) {
+                                console.error('Error highlighting code block:', e);
+                            }
+                        });
+                    }
+                    
+                    // Process colored text tags after markdown parsing
+                    content.innerHTML = content.innerHTML.replace(/<color:([a-zA-Z0-9#]+)>(.*?)<\/color>/gi, 
+                        '<span style="color: $1">$2</span>');
+                } else {
+                    // Use simple markdown parser as fallback
+                    content.innerHTML = parseSimpleMarkdown(message.text);
+                }
             } catch (e) {
                 console.error('Error parsing markdown:', e);
                 content.textContent = message.text;
             }
         } else {
+            // For typing indicators, use text content
             content.textContent = message.text;
         }
         

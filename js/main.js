@@ -1,6 +1,3 @@
-
-
-
 let mainThemeToggle = document.getElementById('theme-toggle');
 const menuToggle = document.querySelector('.menu-toggle');
 const navLinks = document.querySelector('.nav-links');
@@ -8,267 +5,38 @@ let isMobile = window.innerWidth <= 768;
 
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log("Mobile sidebar navigation setup");
+    console.log("Navigation setup");
     
-    
-    if (menuToggle) {
-        menuToggle.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log("Menu toggle clicked - opening sidebar");
-            openSidebar();
+    // Add scroll shadows for mobile
+    if (navLinks) {
+        navLinks.addEventListener('scroll', function() {
+            const isScrolled = this.scrollLeft > 0;
+            this.classList.toggle('has-scroll', isScrolled);
         });
-    } else {
-        console.error("Menu toggle button not found!");
     }
     
-    
-    let touchStartX = 0;
-    let touchEndX = 0;
-    const swipeThreshold = 70; 
-    
-    
-    document.addEventListener('touchstart', e => {
-        touchStartX = e.changedTouches[0].screenX;
-    }, { passive: true });
-    
-    document.addEventListener('touchend', e => {
-        touchEndX = e.changedTouches[0].screenX;
-        handleSwipe();
-    }, { passive: true });
-    
-    
-    function handleSwipe() {
-        
-        if (touchStartX - touchEndX > swipeThreshold && !navLinks.classList.contains('active')) {
-            openSidebar();
+    // Initialize active states
+    const currentPath = window.location.pathname;
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        if (link.getAttribute('href') === currentPath) {
+            link.classList.add('active');
         }
         
-        
-        if (touchEndX - touchStartX > swipeThreshold && navLinks.classList.contains('active')) {
-            closeSidebar();
-        }
-    }
-    
-    
-    function openSidebar() {
-        console.log("Opening sidebar");
-        if (!navLinks) {
-            console.error("Nav links element not found!");
-            return;
-        }
-        
-        navLinks.classList.add('active');
-        document.body.classList.add('menu-open');
-        
-        
-        if (!navLinks.querySelector('.sidebar-header')) {
-            setupSidebarStructure();
-        }
-    }
-    
-    
-    function setupSidebarStructure() {
-        console.log("Setting up sidebar structure");
-        
-        const sidebarHeader = document.createElement('div');
-        sidebarHeader.className = 'sidebar-header';
-        
-        
-        const sidebarTitle = document.createElement('div');
-        sidebarTitle.className = 'sidebar-title';
-        
-        
-        const logoElement = document.querySelector('.logo');
-        if (logoElement) {
-            const logo = logoElement.cloneNode(true);
-            sidebarTitle.appendChild(logo);
-        }
-        
-        
-        const titleText = document.createElement('span');
-        titleText.textContent = 'KKNotes';
-        sidebarTitle.appendChild(titleText);
-        
-        
-        const closeButton = document.createElement('button');
-        closeButton.className = 'sidebar-close';
-        closeButton.setAttribute('aria-label', 'Close menu');
-        closeButton.innerHTML = '<i class="fas fa-times"></i>';
-        
-        
-        closeButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            closeSidebar();
-        });
-        
-        
-        sidebarHeader.appendChild(sidebarTitle);
-        sidebarHeader.appendChild(closeButton);
-        
-        
-        const links = navLinks.querySelectorAll('a');
-        
-        
-        const iconMap = {
-            'Home': 'fa-home',
-            'Notes': 'fa-book-open',
-            'Videos': 'fa-video',
-            'Chat': 'fa-comments',
-            'About': 'fa-info-circle',
-            'Admin': 'fa-lock'
-        };
-        
-        
-        links.forEach(link => {
+        // Add icon if not present
+        if (!link.querySelector('i')) {
             const text = link.textContent.trim();
+            const iconMap = {
+                'Home': 'fa-home',
+                'Notes': 'fa-book-open',
+                'Videos': 'fa-video',
+                'Chat': 'fa-comments',
+                'About': 'fa-info-circle',
+                'Admin': 'fa-lock'
+            };
             const icon = iconMap[text] || 'fa-link';
-            
-            
-            if (!link.querySelector('i')) {
-                link.innerHTML = `<i class="fas ${icon}"></i> ${text}`;
-            }
-            
-            
-            link.addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
-        });
-        
-        
-        const sidebarFooter = document.createElement('div');
-        sidebarFooter.className = 'sidebar-footer';
-        
-        
-        const navDivider = document.createElement('div');
-        navDivider.className = 'nav-divider';
-        
-        
-        navLinks.insertBefore(sidebarHeader, navLinks.firstChild);
-        navLinks.appendChild(navDivider);
-        navLinks.appendChild(sidebarFooter);
-        
-        
-        try {
-            firebase.auth().onAuthStateChanged(user => {
-                updateSidebarUserProfile(user, sidebarFooter);
-            });
-        } catch (error) {
-            console.error("Error setting up auth listener:", error);
-        }
-    }
-    
-    
-    function closeSidebar() {
-        console.log("Closing sidebar");
-        if (!navLinks) {
-            console.error("Nav links element not found!");
-            return;
-        }
-        
-        navLinks.classList.remove('active');
-        document.body.classList.remove('menu-open');
-    }
-    
-    
-    function updateSidebarUserProfile(user, footerElement) {
-        if (!footerElement) return;
-        
-        
-        footerElement.innerHTML = '';
-        
-        if (user) {
-            
-            const userProfile = document.createElement('div');
-            userProfile.className = 'sidebar-user-profile';
-            
-            
-            const userAvatar = document.createElement('img');
-            userAvatar.src = user.photoURL || 'assets/avatars/default-avatar.png';
-            userAvatar.alt = 'User profile';
-            userProfile.appendChild(userAvatar);
-            
-            
-            const userInfo = document.createElement('div');
-            userInfo.className = 'sidebar-user-info';
-            
-            const userName = document.createElement('div');
-            userName.className = 'sidebar-user-name';
-            userName.textContent = user.displayName || 'User';
-            userInfo.appendChild(userName);
-            
-            const userAction = document.createElement('div');
-            userAction.className = 'sidebar-user-action';
-            userAction.innerHTML = '<i class="fas fa-sign-out-alt"></i> Sign Out';
-            userAction.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                try {
-                    firebase.auth().signOut().then(() => {
-                        closeSidebar();
-                    }).catch(error => {
-                        console.error('Sign out error:', error);
-                    });
-                } catch (error) {
-                    console.error("Error signing out:", error);
-                }
-            });
-            userInfo.appendChild(userAction);
-            
-            userProfile.appendChild(userInfo);
-            footerElement.appendChild(userProfile);
-        } else {
-            
-            const loginButton = document.createElement('button');
-            loginButton.className = 'btn primary-btn';
-            loginButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
-            loginButton.style.width = '100%';
-            loginButton.style.marginTop = 'var(--spacing-md)';
-            
-            loginButton.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                closeSidebar();
-                
-                
-                setTimeout(() => {
-                    const authOverlay = document.getElementById('auth-overlay');
-                    if (authOverlay) {
-                        authOverlay.classList.add('active');
-                        document.body.classList.add('no-scroll');
-                    }
-                }, 300);
-            });
-            
-            footerElement.appendChild(loginButton);
-        }
-    }
-    
-    
-    window.openSidebar = openSidebar;
-    window.closeSidebar = closeSidebar;
-    window.setupSidebarStructure = setupSidebarStructure;
-    
-    
-    document.addEventListener('click', function(event) {
-        
-        if (navLinks && 
-            navLinks.classList.contains('active') && 
-            !navLinks.contains(event.target) && 
-            !event.target.classList.contains('menu-toggle') &&
-            !event.target.closest('.menu-toggle')) {
-            closeSidebar();
+            link.innerHTML = `<i class="fas ${icon}"></i>${text}`;
         }
     });
-    
-    
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape' && navLinks && navLinks.classList.contains('active')) {
-            closeSidebar();
-        }
-    });
-
     
     initializeApp();
 });
