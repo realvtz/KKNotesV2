@@ -420,7 +420,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 👤 Author
 
 <div align="center">
-  **Christopher Joshy**
+  ** Christopher Joshy **
   
   [![GitHub](https://img.shields.io/badge/GitHub-ChristopherJoshy-181717?style=flat&logo=github)](https://github.com/ChristopherJoshy)
   [![Instagram](https://img.shields.io/badge/Instagram-calculatederror-E4405F?style=flat&logo=instagram)](https://www.instagram.com/calculatederror/)
