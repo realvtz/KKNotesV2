@@ -1,6 +1,3 @@
-
-
-
 const navButtons = document.querySelectorAll('.nav-btn');
 const typeButtons = document.querySelectorAll('.type-btn');
 const addContentForm = document.getElementById('addContentForm');
@@ -16,9 +13,7 @@ const subjectSemesterSelect = document.getElementById('subjectSemester');
 const adminSidebar = document.querySelector('.admin-sidebar');
 const menuToggle = document.querySelector('.menu-toggle');
 
-
 let isMobile = window.innerWidth <= 768;
-
 
 const db = firebase.database();
 const notesRef = db.ref('notes');
@@ -26,7 +21,6 @@ const videosRef = db.ref('videos');
 const adminsRef = db.ref('admins');
 const semestersRef = db.ref('semesters');
 const subjectsRef = db.ref('subjects');
-
 
 let currentContentType = 'note';
 let currentSemSubType = 'semester';
@@ -36,7 +30,6 @@ let editingSemesterId = null;
 let editingSubjectId = null;
 let editingSemester = '';
 let editingSubject = '';
-
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -62,7 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', handleResize);
 });
 
-
 function handleResize() {
     const wasItMobile = isMobile;
     isMobile = window.innerWidth <= 768;
@@ -76,7 +68,6 @@ function handleResize() {
         }
     }
 }
-
 
 function initMobileAdminBehavior() {
     console.log('Initializing mobile admin behavior');
@@ -146,7 +137,6 @@ function initMobileAdminBehavior() {
     });
 }
 
-
 function resetMobileAdminBehavior() {
     console.log('Resetting mobile admin behavior');
     
@@ -170,14 +160,12 @@ function resetMobileAdminBehavior() {
     });
 }
 
-
 function toggleAdminMenu() {
     if (adminSidebar) {
         adminSidebar.classList.toggle('active');
         document.body.classList.toggle('sidebar-open');
     }
 }
-
 
 async function checkAdminStatus(email) {
     try {
@@ -188,7 +176,6 @@ async function checkAdminStatus(email) {
         return false;
     }
 }
-
 
 function initializeAdmin() {
     
@@ -205,7 +192,6 @@ function initializeAdmin() {
     
     setupForms();
 }
-
 
 function setupNavigation() {
     
@@ -275,7 +261,6 @@ function setupNavigation() {
     }
 }
 
-
 function toggleSemSubForm() {
     const semesterGroups = document.querySelectorAll('.semester-group');
     const subjectGroups = document.querySelectorAll('.subject-group');
@@ -293,9 +278,14 @@ function toggleSemSubForm() {
         formTitle.textContent = 'Add New Subject';
         btnText.textContent = 'Add Subject';
         loadSemesterOptions();
+        
+        // Convert subject key to text input if it's a select
+        const subjectKeyElement = document.getElementById('subjectKey');
+        if (subjectKeyElement && subjectKeyElement.tagName === 'SELECT') {
+            loadSubjectKeys(null, subjectKeyElement);
+        }
     }
 }
-
 
 function setupForms() {
     
@@ -313,7 +303,6 @@ function setupForms() {
         addSemSubForm.addEventListener('submit', handleSemSubSubmit);
     }
 }
-
 
 async function loadSemesters() {
     if (!semesterSelect) return;
@@ -336,7 +325,6 @@ async function loadSemesters() {
     }
 }
 
-
 async function loadSemesterOptions() {
     if (!subjectSemesterSelect) return;
 
@@ -357,7 +345,6 @@ async function loadSemesterOptions() {
         showToast('Failed to load semester options', 'error');
     }
 }
-
 
 async function loadSubjects(semester) {
     if (!subjectSelect) return;
@@ -399,7 +386,6 @@ async function loadSubjects(semester) {
         subjectSelect.innerHTML = '<option value="">Error loading subjects</option>';
     }
 }
-
 
 async function handleContentSubmit(e) {
     e.preventDefault();
@@ -445,7 +431,6 @@ async function handleContentSubmit(e) {
         showToast('Failed to save content', 'error');
     }
 }
-
 
 async function loadContent() {
     if (!contentList) return;
@@ -513,7 +498,6 @@ async function loadContent() {
     }
 }
 
-
 async function editContent(type, semester, subject, id) {
     try {
         
@@ -574,7 +558,6 @@ async function editContent(type, semester, subject, id) {
     }
 }
 
-
 async function deleteContent(type, semester, subject, id) {
     if (!confirm(`Are you sure you want to delete this ${type}?`)) return;
 
@@ -588,7 +571,6 @@ async function deleteContent(type, semester, subject, id) {
         showToast('Failed to delete content', 'error');
     }
 }
-
 
 async function handleAdminSubmit(e) {
     e.preventDefault();
@@ -630,7 +612,6 @@ async function handleAdminSubmit(e) {
     }
 }
 
-
 async function loadAdmins() {
     if (!adminList) return;
     adminList.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
@@ -668,7 +649,6 @@ async function loadAdmins() {
     }
 }
 
-
 async function editAdmin(id) {
     try {
         
@@ -701,7 +681,6 @@ async function editAdmin(id) {
     }
 }
 
-
 async function deleteAdmin(id) {
     if (!confirm('Are you sure you want to remove this admin?')) return;
 
@@ -723,7 +702,6 @@ async function deleteAdmin(id) {
         showToast('Failed to remove admin', 'error');
     }
 }
-
 
 async function handleSemSubSubmit(e) {
     e.preventDefault();
@@ -786,7 +764,6 @@ async function handleSemSubSubmit(e) {
     }
 }
 
-
 async function getSubjectsArray(semester) {
     try {
         const snapshot = await subjectsRef.child(semester).once('value');
@@ -796,7 +773,6 @@ async function getSubjectsArray(semester) {
         return [];
     }
 }
-
 
 async function loadSemestersAndSubjects() {
     if (!semSubList) return;
@@ -874,7 +850,6 @@ async function loadSemestersAndSubjects() {
     }
 }
 
-
 async function editSemester(key) {
     try {
         editingSemesterId = key;
@@ -899,7 +874,6 @@ async function editSemester(key) {
     }
 }
 
-
 async function deleteSemester(key) {
     if (!confirm(`Are you sure you want to delete all data for ${key}? This will delete all subjects and content for this semester.`)) return;
 
@@ -922,7 +896,6 @@ async function deleteSemester(key) {
     }
 }
 
-
 async function editSubject(semester, key) {
     try {
         editingSubjectId = key;
@@ -936,7 +909,6 @@ async function editSubject(semester, key) {
             return;
         }
         
-        
         if (currentSemSubType !== 'subject') {
             const subjectTabBtn = document.querySelector('#sem-subject-panel .type-btn[data-type="subject"]');
             if (subjectTabBtn) {
@@ -946,13 +918,21 @@ async function editSubject(semester, key) {
         
         document.getElementById('subjectSemester').value = semester;
         document.getElementById('subjectName').value = subject.name;
-        document.getElementById('subjectKey').value = key;
-        document.getElementById('subjectKey').disabled = true; 
         
+        // Get the subject key element and ensure it's a text input
+        const subjectKeyElement = document.getElementById('subjectKey');
+        let inputElement = subjectKeyElement;
+        
+        // If it's a select, convert it to an input
+        if (subjectKeyElement.tagName === 'SELECT') {
+            inputElement = loadSubjectKeys(null, subjectKeyElement);
+        }
+        
+        // Set the value to the current key
+        inputElement.value = key;
         
         const btnText = document.getElementById('semSubBtnText');
         btnText.textContent = 'Update Subject';
-        
         
         addSemSubForm.scrollIntoView({ behavior: 'smooth' });
     } catch (error) {
@@ -960,7 +940,6 @@ async function editSubject(semester, key) {
         showToast('Failed to load subject for editing', 'error');
     }
 }
-
 
 async function deleteSubject(semester, key) {
     if (!confirm(`Are you sure you want to delete subject ${key} from semester ${semester}? This will also delete all associated content.`)) return;
@@ -999,7 +978,6 @@ async function deleteSubject(semester, key) {
     }
 }
 
-
 function resetForm(formType) {
     switch (formType) {
         case 'content':
@@ -1032,25 +1010,26 @@ function resetForm(formType) {
             editingSubjectId = null;
             addSemSubForm.reset();
             
-            
             document.getElementById('semesterKey').disabled = false;
             
+            // Reset the subject key input or recreate it if necessary
             const subjectKeyElement = document.getElementById('subjectKey');
             if (subjectKeyElement) {
-                subjectKeyElement.disabled = false;
-                subjectKeyElement.innerHTML = '<option value="">Enter Subject Key</option>';
+                if (subjectKeyElement.tagName === 'INPUT') {
+                    subjectKeyElement.value = '';
+                    subjectKeyElement.disabled = false;
+                } else if (subjectKeyElement.tagName === 'SELECT') {
+                    loadSubjectKeys(null, subjectKeyElement);
+                }
             }
-            
             
             const btnText = document.getElementById('semSubBtnText');
             btnText.textContent = currentSemSubType === 'semester' ? 'Add Semester' : 'Add Subject';
-            
             
             toggleSemSubForm();
             break;
     }
 }
-
 
 function showToast(message, type = 'info') {
     
@@ -1081,41 +1060,31 @@ function showToast(message, type = 'info') {
     }, 5000);
 }
 
-
 async function loadSubjectKeys(semester, selectElement) {
+    // Replace this entire function with a simpler implementation that ensures we have a text input
     try {
-        if (!semester) {
-            selectElement.innerHTML = '<option value="">Enter Subject Key</option>';
-            return;
-        }
-
-        const snapshot = await subjectsRef.child(semester).once('value');
-        const subjects = snapshot.val() || [];
-        
-        
-        const currentValue = selectElement.value;
-        
-        
-        selectElement.innerHTML = '<option value="">Enter Subject Key</option>';
-        
-        
-        subjects.forEach(subject => {
-            const option = document.createElement('option');
-            option.value = subject.key;
-            option.textContent = `${subject.key} - ${subject.name}`;
-            selectElement.appendChild(option);
-        });
-        
-        
-        if (currentValue) {
-            selectElement.value = currentValue;
+        // Check if the element is a select element
+        if (selectElement.tagName === 'SELECT') {
+            // Replace the select with an input field
+            const parent = selectElement.parentElement;
+            const inputField = document.createElement('input');
+            inputField.type = 'text';
+            inputField.id = 'subjectKey';
+            inputField.name = 'subjectKey';
+            inputField.className = selectElement.className;
+            inputField.placeholder = 'Enter subject key';
+            inputField.required = true;
+            inputField.value = selectElement.value || '';
+            
+            // Replace the select with the input
+            parent.replaceChild(inputField, selectElement);
+            return inputField;
         }
     } catch (error) {
-        console.error('Error loading subject keys:', error);
-        showToast('Failed to load subject keys', 'error');
+        console.error('Error converting subject key to textbox:', error);
+        showToast('Failed to create subject key field', 'error');
     }
 }
-
 
 window.editContent = editContent;
 window.deleteContent = deleteContent;
